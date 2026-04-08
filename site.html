@@ -1,0 +1,1642 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>R72 LEGION — Gestão Tática para Segurança Privada</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;1,300&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+<style>
+/* ══════════════════════════════════════════════════
+   TOKENS DE DESIGN
+══════════════════════════════════════════════════ */
+:root {
+  /* Paleta extraída do logo */
+  --gold-light:   #E8C96A;
+  --gold:         #C9A84C;
+  --gold-dark:    #8A6A28;
+  --gold-muted:   #5A4518;
+  --marble:       #D8D8D8;
+  --ice-blue:     #7ECFF4;
+
+  /* Profundidade preto/cinza */
+  --void:         #000000;
+  --abyss:        #050505;
+  --deep:         #0A0A0A;
+  --dark1:        #111111;
+  --dark2:        #161616;
+  --dark3:        #1E1E1E;
+  --dark4:        #252525;
+  --mid:          #333333;
+  --light-mid:    #555555;
+  --text-dim:     #888888;
+  --text:         #BBBBBB;
+  --text-bright:  #E0E0E0;
+  --white:        #F5F5F5;
+
+  --radius: 0px; /* sharp edges = tático */
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--abyss);
+  color: var(--text);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 18px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* Grain overlay global */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0.6;
+}
+
+/* ══════════════════════════════════════════════════
+   NAVBAR
+══════════════════════════════════════════════════ */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 5%;
+  background: rgba(0,0,0,0.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(201,168,76,0.18);
+}
+
+.nav-logo {
+  font-family: 'Orbitron', monospace;
+  font-weight: 900;
+  font-size: 1.2rem;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.nav-logo-line {
+  width: 28px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--gold), transparent);
+}
+
+nav ul {
+  display: flex;
+  list-style: none;
+  gap: 2.5rem;
+  align-items: center;
+}
+
+nav ul a {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  text-decoration: none;
+  transition: color 0.2s;
+  position: relative;
+}
+
+nav ul a::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0; right: 0;
+  height: 1px;
+  background: var(--gold);
+  transform: scaleX(0);
+  transition: transform 0.2s;
+}
+
+nav ul a:hover { color: var(--gold-light); }
+nav ul a:hover::after { transform: scaleX(1); }
+
+.nav-cta {
+  background: var(--gold) !important;
+  color: var(--void) !important;
+  padding: 0.5rem 1.5rem !important;
+  font-weight: 700 !important;
+  transition: background 0.2s, box-shadow 0.2s !important;
+}
+
+.nav-cta::after { display: none !important; }
+.nav-cta:hover {
+  background: var(--gold-light) !important;
+  box-shadow: 0 0 24px rgba(201,168,76,0.4) !important;
+}
+
+/* ══════════════════════════════════════════════════
+   HERO — FUNDO PRETO PURO, LOGO NO CENTRO
+══════════════════════════════════════════════════ */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  background: var(--void);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Luz ambiente sutil atrás do logo */
+.hero-glow {
+  position: absolute;
+  width: 700px;
+  height: 700px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(201,168,76,0.07) 0%,
+    rgba(201,168,76,0.03) 40%,
+    transparent 70%
+  );
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+/* Grade tática muito sutil */
+.hero-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(201,168,76,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(201,168,76,0.025) 1px, transparent 1px);
+  background-size: 80px 80px;
+}
+
+/* Vinheta nas bordas */
+.hero-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.85) 100%);
+  pointer-events: none;
+}
+
+/* Linha horizontal decorativa */
+.hero-line {
+  position: absolute;
+  top: 50%;
+  left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(201,168,76,0.12) 20%,
+    rgba(201,168,76,0.25) 50%,
+    rgba(201,168,76,0.12) 80%,
+    transparent 100%
+  );
+  transform: translateY(-160px);
+  pointer-events: none;
+}
+
+.hero-line-bottom {
+  top: auto;
+  bottom: 50%;
+  transform: translateY(160px);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 80px 5% 0;
+}
+
+/* Eyebrow */
+.hero-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+  animation: fadeDown 0.9s ease both;
+}
+
+.eyebrow-line {
+  width: 40px;
+  height: 1px;
+  background: var(--gold);
+}
+
+.eyebrow-text {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.25em;
+  color: var(--gold);
+  text-transform: uppercase;
+}
+
+/* Logo principal */
+.hero-logo-wrap {
+  position: relative;
+  width: 320px;
+  height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2.5rem;
+  animation: logoReveal 1.2s cubic-bezier(0.22,1,0.36,1) both;
+  animation-delay: 0.15s;
+}
+
+/* Anel giratório atrás do logo */
+.logo-ring {
+  position: absolute;
+  width: 360px;
+  height: 360px;
+  border: 1px solid rgba(201,168,76,0.12);
+  border-radius: 50%;
+  animation: spinSlow 30s linear infinite;
+}
+
+.logo-ring::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  background: var(--gold);
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--gold);
+}
+
+.logo-ring-2 {
+  width: 400px;
+  height: 400px;
+  border-color: rgba(201,168,76,0.06);
+  animation-direction: reverse;
+  animation-duration: 45s;
+}
+
+.hero-logo-wrap img {
+  width: 280px;
+  height: 280px;
+  object-fit: contain;
+  position: relative;
+  z-index: 2;
+  filter: drop-shadow(0 0 40px rgba(201,168,76,0.35)) drop-shadow(0 0 80px rgba(201,168,76,0.15));
+  transition: filter 0.4s;
+}
+
+.hero-logo-wrap:hover img {
+  filter: drop-shadow(0 0 60px rgba(201,168,76,0.55)) drop-shadow(0 0 120px rgba(201,168,76,0.25));
+}
+
+/* Título */
+.hero-title {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(2.8rem, 7vw, 5.5rem);
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  line-height: 0.95;
+  color: var(--white);
+  animation: fadeUp 0.9s ease both;
+  animation-delay: 0.3s;
+}
+
+.hero-title em {
+  font-style: normal;
+  display: block;
+  background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 50%, var(--gold-dark) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: none;
+}
+
+.hero-sub {
+  font-size: 1.2rem;
+  font-weight: 300;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  margin: 1.5rem 0 2.5rem;
+  max-width: 500px;
+  text-transform: uppercase;
+  animation: fadeUp 0.9s ease both;
+  animation-delay: 0.45s;
+}
+
+.hero-sub strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.hero-cta-row {
+  display: flex;
+  gap: 1rem;
+  animation: fadeUp 0.9s ease both;
+  animation-delay: 0.6s;
+}
+
+/* ──── Scroll indicator ──── */
+.scroll-hint {
+  position: absolute;
+  bottom: 2.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 2;
+  animation: fadeUp 1s ease both;
+  animation-delay: 1.2s;
+}
+
+.scroll-hint span {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+.scroll-arrow {
+  width: 1px;
+  height: 40px;
+  background: linear-gradient(180deg, var(--gold), transparent);
+  animation: scrollDrop 1.8s ease-in-out infinite;
+}
+
+/* ══════════════════════════════════════════════════
+   BOTÕES
+══════════════════════════════════════════════════ */
+.btn {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 0.9rem 2.4rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  transition: all 0.25s;
+  cursor: pointer;
+  border: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-gold {
+  background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%);
+  color: var(--void);
+}
+
+.btn-gold::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.15);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.btn-gold:hover::before { opacity: 1; }
+.btn-gold:hover { box-shadow: 0 0 40px rgba(201,168,76,0.5); }
+
+.btn-outline {
+  background: transparent;
+  color: var(--gold-light);
+  border: 1px solid rgba(201,168,76,0.35);
+}
+
+.btn-outline:hover {
+  border-color: var(--gold);
+  background: rgba(201,168,76,0.07);
+  color: var(--gold-light);
+}
+
+/* ══════════════════════════════════════════════════
+   DIVISOR COM ORNAMENTO
+══════════════════════════════════════════════════ */
+.ornament-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 0 5%;
+  height: 1px;
+}
+
+.ornament-divider::before,
+.ornament-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(201,168,76,0.2));
+}
+
+.ornament-divider::after {
+  background: linear-gradient(270deg, transparent, rgba(201,168,76,0.2));
+}
+
+.ornament-diamond {
+  width: 8px;
+  height: 8px;
+  background: var(--gold);
+  transform: rotate(45deg);
+  flex-shrink: 0;
+  box-shadow: 0 0 10px rgba(201,168,76,0.6);
+}
+
+/* ══════════════════════════════════════════════════
+   STATS RIBBON
+══════════════════════════════════════════════════ */
+.stats-ribbon {
+  background: var(--dark1);
+  border-top: 1px solid rgba(201,168,76,0.1);
+  border-bottom: 1px solid rgba(201,168,76,0.1);
+  padding: 2.5rem 5%;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+}
+
+.stat {
+  flex: 1;
+  max-width: 220px;
+  text-align: center;
+  padding: 0.5rem 2rem;
+  border-right: 1px solid rgba(201,168,76,0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat:last-child { border-right: none; }
+
+.stat-num {
+  font-family: 'Orbitron', monospace;
+  font-size: 2.2rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--gold-light), var(--gold));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-top: 0.5rem;
+}
+
+/* ══════════════════════════════════════════════════
+   SECTION BASE
+══════════════════════════════════════════════════ */
+section { padding: 7rem 5%; }
+
+.section-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--gold);
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+}
+
+.section-label::before {
+  content: '';
+  width: 20px;
+  height: 1px;
+  background: var(--gold);
+}
+
+.section-title {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-weight: 800;
+  color: var(--white);
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+  margin-bottom: 1rem;
+}
+
+.section-desc {
+  font-size: 1.05rem;
+  font-weight: 300;
+  color: var(--text-dim);
+  line-height: 1.7;
+  max-width: 520px;
+  letter-spacing: 0.03em;
+}
+
+/* ══════════════════════════════════════════════════
+   MÓDULOS
+══════════════════════════════════════════════════ */
+.modulos { background: var(--deep); }
+
+.modulos-head { text-align: center; margin-bottom: 5rem; }
+.modulos-head .section-label { justify-content: center; }
+.modulos-head .section-desc { margin: 0 auto; }
+
+.modulos-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: auto auto;
+  gap: 1px;
+  background: rgba(201,168,76,0.08);
+  max-width: 1200px;
+  margin: 0 auto;
+  border: 1px solid rgba(201,168,76,0.08);
+}
+
+/* Card destaque: agente (maior) */
+.mod-card {
+  background: var(--dark1);
+  padding: 2.5rem;
+  position: relative;
+  transition: background 0.3s;
+  display: flex;
+  flex-direction: column;
+}
+
+.mod-card:hover { background: var(--dark2); }
+
+/* Borda topo acende no hover */
+.mod-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.mod-card:hover::before { opacity: 1; }
+
+/* Card destaque ocupa 2 colunas */
+.mod-card--feature {
+  grid-column: span 2;
+  background: linear-gradient(135deg, #0e0e0e 0%, var(--dark1) 100%);
+}
+
+.mod-card--feature::before { opacity: 0.4; }
+
+.mod-num {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  color: var(--gold-muted);
+  margin-bottom: 1.5rem;
+}
+
+.mod-icon {
+  font-size: 1.6rem;
+  margin-bottom: 1.2rem;
+  line-height: 1;
+}
+
+.mod-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-bright);
+  letter-spacing: 0.05em;
+  margin-bottom: 0.8rem;
+}
+
+.mod-card--feature .mod-title { font-size: 1.3rem; }
+
+.mod-desc {
+  font-size: 0.95rem;
+  font-weight: 300;
+  color: var(--text-dim);
+  line-height: 1.65;
+  flex: 1;
+  letter-spacing: 0.02em;
+}
+
+.mod-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.mod-tag {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  padding: 0.3rem 0.75rem;
+  border: 1px solid rgba(201,168,76,0.2);
+  color: var(--gold-dark);
+  text-transform: uppercase;
+}
+
+/* ══════════════════════════════════════════════════
+   SEGURANÇA — LAYOUT SPLIT
+══════════════════════════════════════════════════ */
+.seguranca {
+  background: var(--abyss);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Detalhe diagonal de fundo */
+.seguranca::before {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  right: 0;
+  width: 45%;
+  background: var(--dark1);
+  clip-path: polygon(12% 0%, 100% 0%, 100% 100%, 0% 100%);
+}
+
+.seguranca-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6rem;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.sec-feats {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+.sec-feat {
+  display: flex;
+  gap: 1.2rem;
+  align-items: flex-start;
+}
+
+.sec-feat-num {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--gold);
+  letter-spacing: 0.1em;
+  flex-shrink: 0;
+  margin-top: 0.2rem;
+}
+
+.sec-feat-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-bright);
+  margin-bottom: 0.3rem;
+}
+
+.sec-feat-desc {
+  font-size: 0.9rem;
+  font-weight: 300;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+
+/* Terminal */
+.terminal-wrap {
+  position: relative;
+}
+
+.terminal-wrap::before {
+  content: '';
+  position: absolute;
+  inset: -20px;
+  background: radial-gradient(ellipse at center, rgba(201,168,76,0.05) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.terminal {
+  background: #040404;
+  border: 1px solid rgba(201,168,76,0.15);
+  font-family: 'Share Tech Mono', monospace;
+  position: relative;
+  z-index: 1;
+}
+
+.terminal-topbar {
+  background: rgba(201,168,76,0.07);
+  border-bottom: 1px solid rgba(201,168,76,0.12);
+  padding: 0.75rem 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.t-circles { display: flex; gap: 0.4rem; }
+.t-circle { width: 9px; height: 9px; border-radius: 50%; }
+
+.terminal-title {
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-left: 0.5rem;
+}
+
+.terminal-body {
+  padding: 1.5rem;
+  font-size: 0.75rem;
+  line-height: 2;
+}
+
+.t-row { display: flex; gap: 0.5rem; align-items: baseline; }
+.t-ts  { color: #444; font-size: 0.68rem; }
+.t-ok  { color: #4ade80; }
+.t-warn{ color: var(--gold); }
+.t-err { color: #f87171; }
+.t-info{ color: var(--ice-blue); }
+.t-sep { height: 1px; background: rgba(201,168,76,0.06); margin: 0.5rem 0; }
+
+.cursor-blink {
+  display: inline-block;
+  width: 7px;
+  height: 13px;
+  background: var(--gold);
+  animation: cursorBlink 1.1s step-end infinite;
+  vertical-align: middle;
+}
+
+/* ══════════════════════════════════════════════════
+   PLANOS
+══════════════════════════════════════════════════ */
+.planos { background: var(--dark1); }
+
+.planos-head { text-align: center; margin-bottom: 5rem; }
+.planos-head .section-label { justify-content: center; }
+.planos-head .section-desc { margin: 0 auto; }
+
+.planos-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: rgba(201,168,76,0.07);
+  max-width: 1000px;
+  margin: 0 auto;
+  border: 1px solid rgba(201,168,76,0.07);
+}
+
+.plano {
+  background: var(--dark1);
+  padding: 3rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: background 0.3s;
+}
+
+.plano:hover { background: #141414; }
+
+.plano--star {
+  background: linear-gradient(180deg, #131008 0%, var(--dark1) 60%);
+}
+
+.plano--star::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+
+.plano-badge {
+  position: absolute;
+  top: -1px;
+  right: 2.5rem;
+  background: var(--gold);
+  color: var(--void);
+  font-family: 'Orbitron', monospace;
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  padding: 0.3rem 0.9rem;
+  text-transform: uppercase;
+}
+
+.plano-tier {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  color: var(--gold-dark);
+  text-transform: uppercase;
+  margin-bottom: 2rem;
+}
+
+.plano-price {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.25rem;
+  margin-bottom: 0.3rem;
+}
+
+.price-currency {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--gold);
+  margin-top: 0.4rem;
+}
+
+.price-number {
+  font-family: 'Orbitron', monospace;
+  font-size: 3.2rem;
+  font-weight: 900;
+  color: var(--white);
+  line-height: 1;
+}
+
+.plano-period {
+  font-size: 0.82rem;
+  font-weight: 300;
+  color: var(--text-dim);
+  letter-spacing: 0.05em;
+  margin-bottom: 2.5rem;
+}
+
+.plano-items {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  flex: 1;
+  margin-bottom: 2.5rem;
+}
+
+.plano-items li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.95rem;
+  font-weight: 400;
+  color: var(--text);
+  letter-spacing: 0.03em;
+}
+
+.plano-items li::before {
+  content: '';
+  width: 14px;
+  height: 1px;
+  background: var(--gold);
+  flex-shrink: 0;
+}
+
+.plano-items li.off {
+  color: var(--mid);
+  text-decoration: line-through;
+}
+
+.plano-items li.off::before { background: var(--mid); }
+
+.btn-plano {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 0.85rem;
+  text-align: center;
+  border: 1px solid rgba(201,168,76,0.25);
+  color: var(--gold);
+  background: transparent;
+  transition: all 0.25s;
+  cursor: pointer;
+  display: block;
+}
+
+.btn-plano:hover {
+  border-color: var(--gold);
+  background: rgba(201,168,76,0.07);
+}
+
+.plano--star .btn-plano {
+  background: linear-gradient(135deg, var(--gold-light), var(--gold));
+  color: var(--void);
+  border-color: transparent;
+}
+
+.plano--star .btn-plano:hover {
+  box-shadow: 0 0 30px rgba(201,168,76,0.35);
+}
+
+/* ══════════════════════════════════════════════════
+   COMO FUNCIONA
+══════════════════════════════════════════════════ */
+.como { background: var(--abyss); }
+
+.como-head { text-align: center; margin-bottom: 5rem; }
+.como-head .section-label { justify-content: center; }
+
+.como-steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  max-width: 1100px;
+  margin: 0 auto;
+  position: relative;
+}
+
+/* Linha conectando os steps */
+.como-steps::before {
+  content: '';
+  position: absolute;
+  top: 26px;
+  left: calc(12.5% + 10px);
+  right: calc(12.5% + 10px);
+  height: 1px;
+  background: linear-gradient(90deg,
+    rgba(201,168,76,0.4),
+    rgba(201,168,76,0.15) 50%,
+    rgba(201,168,76,0.4)
+  );
+}
+
+.step {
+  padding: 0 1.5rem;
+  text-align: center;
+}
+
+.step-circle {
+  width: 52px;
+  height: 52px;
+  border: 1px solid rgba(201,168,76,0.3);
+  background: var(--dark1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.step-circle span {
+  font-family: 'Orbitron', monospace;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--gold);
+}
+
+.step-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-bright);
+  margin-bottom: 0.5rem;
+}
+
+.step-desc {
+  font-size: 0.9rem;
+  font-weight: 300;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+
+/* ══════════════════════════════════════════════════
+   CTA FINAL
+══════════════════════════════════════════════════ */
+.cta-final {
+  background: var(--void);
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  padding: 9rem 5%;
+}
+
+/* Logo faint de fundo */
+.cta-final::before {
+  content: 'R72';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Orbitron', monospace;
+  font-weight: 900;
+  font-size: 28vw;
+  color: rgba(201,168,76,0.025);
+  line-height: 1;
+  pointer-events: none;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+.cta-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 800px;
+  height: 400px;
+  background: radial-gradient(ellipse, rgba(201,168,76,0.05) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.cta-final .section-label { justify-content: center; }
+.cta-final .section-title {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  max-width: 700px;
+  margin: 1rem auto 1.5rem;
+}
+.cta-final .section-desc { margin: 0 auto 3rem; text-align: center; }
+
+.cta-row {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 1;
+}
+
+.cta-note {
+  font-size: 0.8rem;
+  font-weight: 300;
+  color: var(--mid);
+  letter-spacing: 0.08em;
+  margin-top: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* ══════════════════════════════════════════════════
+   FOOTER
+══════════════════════════════════════════════════ */
+footer {
+  background: var(--void);
+  border-top: 1px solid rgba(201,168,76,0.1);
+  padding: 2.5rem 5%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.footer-logo {
+  font-family: 'Orbitron', monospace;
+  font-weight: 900;
+  font-size: 1rem;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+}
+
+.footer-links {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.footer-links a {
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.footer-links a:hover { color: var(--gold-light); }
+
+.footer-copy {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: #333;
+}
+
+/* ══════════════════════════════════════════════════
+   ANIMAÇÕES
+══════════════════════════════════════════════════ */
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes logoReveal {
+  from { opacity: 0; transform: scale(0.85); filter: blur(20px); }
+  to   { opacity: 1; transform: scale(1); filter: blur(0); }
+}
+
+@keyframes spinSlow {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes scrollDrop {
+  0%   { opacity: 0; transform: scaleY(0); transform-origin: top; }
+  50%  { opacity: 1; transform: scaleY(1); transform-origin: top; }
+  100% { opacity: 0; transform: scaleY(1); transform-origin: top; }
+}
+
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* ══════════════════════════════════════════════════
+   RESPONSIVO
+══════════════════════════════════════════════════ */
+@media (max-width: 960px) {
+  .modulos-grid { grid-template-columns: 1fr 1fr; }
+  .mod-card--feature { grid-column: span 2; }
+  .planos-grid { grid-template-columns: 1fr; }
+  .seguranca-layout { grid-template-columns: 1fr; gap: 3rem; }
+  .seguranca::before { display: none; }
+  .como-steps { grid-template-columns: repeat(2, 1fr); gap: 2rem; }
+  .como-steps::before { display: none; }
+}
+
+@media (max-width: 600px) {
+  nav ul { display: none; }
+  .hero-logo-wrap { width: 240px; height: 240px; }
+  .hero-logo-wrap img { width: 200px; height: 200px; }
+  .logo-ring { width: 280px; height: 280px; }
+  .logo-ring-2 { width: 310px; height: 310px; }
+  .modulos-grid { grid-template-columns: 1fr; }
+  .mod-card--feature { grid-column: span 1; }
+  .stats-ribbon { flex-direction: column; align-items: center; }
+  .stat { border-right: none; border-bottom: 1px solid rgba(201,168,76,0.08); max-width: 100%; width: 100%; }
+  .stat:last-child { border-bottom: none; }
+  .como-steps { grid-template-columns: 1fr; }
+  footer { flex-direction: column; text-align: center; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════ NAVBAR ══════ -->
+<nav>
+  <a href="#" class="nav-logo">
+    <span class="nav-logo-line"></span>
+    R72 LEGION
+  </a>
+  <ul>
+    <li><a href="#modulos">Módulos</a></li>
+    <li><a href="#seguranca">Segurança</a></li>
+    <li><a href="#planos">Planos</a></li>
+    <li><a href="#contato" class="nav-cta">Solicitar Demo</a></li>
+  </ul>
+</nav>
+
+<!-- ══════ HERO ══════ -->
+<section class="hero" id="inicio">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-line"></div>
+  <div class="hero-line hero-line-bottom"></div>
+  <div class="hero-vignette"></div>
+
+  <div class="hero-content">
+    <div class="hero-eyebrow">
+      <span class="eyebrow-line"></span>
+      <span class="eyebrow-text">Sistema de Gestão Tático · r72.tec.br</span>
+      <span class="eyebrow-line" style="transform: scaleX(-1)"></span>
+    </div>
+
+    <div class="hero-logo-wrap">
+      <div class="logo-ring"></div>
+      <div class="logo-ring logo-ring-2"></div>
+      <!-- Usa o logo PNG com chroma key (fundo verde) -->
+      <!-- Para melhor resultado use a versão sem fundo. O filter abaixo remove o verde. -->
+      <img
+        src="logo_r72_.png"
+        alt="R72 Legion Logo"
+        style="mix-blend-mode: screen;"
+        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+      >
+      <!-- Fallback SVG se a imagem não carregar -->
+      <div style="display:none; width:220px; height:220px; align-items:center; justify-content:center; position:relative; z-index:2;">
+        <svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg" width="220">
+          <defs>
+            <linearGradient id="gld" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#E8C96A"/>
+              <stop offset="100%" style="stop-color:#8A6A28"/>
+            </linearGradient>
+          </defs>
+          <!-- Escudo -->
+          <path d="M100 10 L180 45 L180 120 Q180 180 100 210 Q20 180 20 120 L20 45 Z"
+                fill="none" stroke="url(#gld)" stroke-width="2.5"/>
+          <!-- R72 -->
+          <text x="100" y="130" text-anchor="middle"
+                font-family="Orbitron,monospace" font-size="42" font-weight="900"
+                fill="url(#gld)">R72</text>
+        </svg>
+      </div>
+    </div>
+
+    <h1 class="hero-title">
+      GESTÃO<br><em>TÁTICA</em>
+    </h1>
+
+    <p class="hero-sub">
+      Plataforma completa para <strong>segurança privada</strong>.<br>
+      Agentes · Supervisores · Dashboard em tempo real.
+    </p>
+
+    <div class="hero-cta-row">
+      <a href="#planos" class="btn btn-gold">Ver Planos</a>
+      <a href="#modulos" class="btn btn-outline">Conhecer o Sistema</a>
+    </div>
+  </div>
+
+  <div class="scroll-hint">
+    <span>Rolar</span>
+    <div class="scroll-arrow"></div>
+  </div>
+</section>
+
+<!-- ══════ STATS ══════ -->
+<div class="stats-ribbon">
+  <div class="stat">
+    <span class="stat-num">5</span>
+    <span class="stat-label">Módulos Integrados</span>
+  </div>
+  <div class="stat">
+    <span class="stat-num">PWA</span>
+    <span class="stat-label">App sem Play Store</span>
+  </div>
+  <div class="stat">
+    <span class="stat-num">∞</span>
+    <span class="stat-label">Usuários Sem Custo Extra</span>
+  </div>
+  <div class="stat">
+    <span class="stat-num">100%</span>
+    <span class="stat-label">Dados na Sua Empresa</span>
+  </div>
+</div>
+
+<div class="ornament-divider">
+  <div class="ornament-diamond"></div>
+</div>
+
+<!-- ══════ MÓDULOS ══════ -->
+<section class="modulos" id="modulos">
+  <div class="modulos-head">
+    <div class="section-label">// arquitetura do sistema</div>
+    <h2 class="section-title">Cinco módulos.<br>Uma missão.</h2>
+    <p class="section-desc">Cada perfil de acesso tem sua interface dedicada. Dados fluem entre os módulos de forma segura e em tempo real.</p>
+  </div>
+
+  <div class="modulos-grid">
+
+    <!-- Destaque: Agente (2 colunas) -->
+    <div class="mod-card mod-card--feature">
+      <span class="mod-num">MOD-001 · PORTA 5001</span>
+      <span class="mod-icon">🦺</span>
+      <h3 class="mod-title">App do Agente Operacional</h3>
+      <p class="mod-desc">Interface mobile-first instalável diretamente no celular do vigilante como aplicativo nativo (PWA). Funciona em redes lentas e pode ser instalado sem App Store ou Play Store. Projetado para uso em campo com uma mão.</p>
+      <div class="mod-tags">
+        <span class="mod-tag">Rondas GPS</span>
+        <span class="mod-tag">Botão de Pânico</span>
+        <span class="mod-tag">Chat em tempo real</span>
+        <span class="mod-tag">Registro de Ocorrências</span>
+        <span class="mod-tag">Controle de Materiais</span>
+      </div>
+    </div>
+
+    <div class="mod-card">
+      <span class="mod-num">MOD-002 · PORTA 5002</span>
+      <span class="mod-icon">🎯</span>
+      <h3 class="mod-title">Painel do Supervisor</h3>
+      <p class="mod-desc">Visão gerencial em campo. Acompanhe equipes, receba alertas de pânico e coordene rondas em tempo real com mapa interativo.</p>
+      <div class="mod-tags">
+        <span class="mod-tag">Monitor ao Vivo</span>
+        <span class="mod-tag">Alertas Imediatos</span>
+        <span class="mod-tag">Marcação GPS</span>
+      </div>
+    </div>
+
+    <div class="mod-card">
+      <span class="mod-num">MOD-003 · PORTA 5003</span>
+      <span class="mod-icon">🖥️</span>
+      <h3 class="mod-title">Dashboard de Gestão</h3>
+      <p class="mod-desc">Central de comando para gestores. Mapa Leaflet, relatórios de desempenho por agente e histórico completo de operações.</p>
+      <div class="mod-tags">
+        <span class="mod-tag">Mapa Leaflet</span>
+        <span class="mod-tag">Relatórios</span>
+        <span class="mod-tag">Exportação CSV</span>
+      </div>
+    </div>
+
+    <div class="mod-card">
+      <span class="mod-num">MOD-004 · PORTA 5005</span>
+      <span class="mod-icon">📡</span>
+      <h3 class="mod-title">Rádio Central — Chat</h3>
+      <p class="mod-desc">Comunicação em tempo real via WebSocket entre todos os níveis. Histórico persistente, envio de imagens e áudios.</p>
+      <div class="mod-tags">
+        <span class="mod-tag">WebSocket</span>
+        <span class="mod-tag">Mídia</span>
+        <span class="mod-tag">Salas por Equipe</span>
+      </div>
+    </div>
+
+    <div class="mod-card">
+      <span class="mod-num">MOD-000 · PORTA 5007</span>
+      <span class="mod-icon">🔐</span>
+      <h3 class="mod-title">Motor Central de Auth</h3>
+      <p class="mod-desc">Portal único de autenticação com tokens criptografados, IP binding por sessão, anti-brute-force e auditoria completa de acessos.</p>
+      <div class="mod-tags">
+        <span class="mod-tag">Tokens 1h</span>
+        <span class="mod-tag">IP Binding</span>
+        <span class="mod-tag">Audit Log</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="ornament-divider"><div class="ornament-diamond"></div></div>
+
+<!-- ══════ SEGURANÇA ══════ -->
+<section class="seguranca" id="seguranca">
+  <div class="seguranca-layout">
+    <div>
+      <div class="section-label">// motor de segurança</div>
+      <h2 class="section-title">Blindado<br>por design.</h2>
+      <p class="section-desc">Não é segurança de fachada. Cada camada foi construída para resistir a ambientes onde falhas têm consequências reais.</p>
+
+      <div class="sec-feats">
+        <div class="sec-feat">
+          <span class="sec-feat-num">01</span>
+          <div>
+            <div class="sec-feat-title">Anti Brute-Force Automático</div>
+            <p class="sec-feat-desc">5 tentativas falhas → IP bloqueado automaticamente por 5 minutos. Blacklist permanente configurável pelo administrador.</p>
+          </div>
+        </div>
+        <div class="sec-feat">
+          <span class="sec-feat-num">02</span>
+          <div>
+            <div class="sec-feat-title">Token com IP Binding</div>
+            <p class="sec-feat-desc">Cada sessão é amarrada ao IP de origem. Token roubado e usado de outro IP é detectado e bloqueado instantaneamente.</p>
+          </div>
+        </div>
+        <div class="sec-feat">
+          <span class="sec-feat-num">03</span>
+          <div>
+            <div class="sec-feat-title">Auditoria de Acessos Completa</div>
+            <p class="sec-feat-desc">Todo evento de segurança registrado: login, falha, bloqueio, logout — com timestamp preciso e IP real mesmo atrás de proxy.</p>
+          </div>
+        </div>
+        <div class="sec-feat">
+          <span class="sec-feat-num">04</span>
+          <div>
+            <div class="sec-feat-title">Isolamento por Nível de Acesso</div>
+            <p class="sec-feat-desc">Agente, Supervisor e Gestor acessam apenas seu módulo. Portas isoladas, tokens distintos, zero cross-access.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="terminal-wrap">
+      <div class="terminal">
+        <div class="terminal-topbar">
+          <div class="t-circles">
+            <div class="t-circle" style="background:#ff5f57"></div>
+            <div class="t-circle" style="background:#febc2e"></div>
+            <div class="t-circle" style="background:#28c840"></div>
+          </div>
+          <span class="terminal-title">r72 · auditoria de segurança · em tempo real</span>
+        </div>
+        <div class="terminal-body">
+          <div class="t-row"><span class="t-ts">[2026-04-08 07:02:11]</span></div>
+          <div class="t-row"><span class="t-ok">✅ LOGIN OK · jose.silva → AGENTE (porta 5001)</span></div>
+          <div class="t-sep"></div>
+          <div class="t-row"><span class="t-ts">[2026-04-08 07:05:33]</span></div>
+          <div class="t-row"><span class="t-ok">✅ LOGIN OK · carlos.sup → SUPERVISOR (porta 5002)</span></div>
+          <div class="t-sep"></div>
+          <div class="t-row"><span class="t-ts">[2026-04-08 07:09:14]</span></div>
+          <div class="t-row"><span class="t-warn">❌ FALHA · user=admin | IP: 45.123.88.9 | Restantes: 4</span></div>
+          <div class="t-sep"></div>
+          <div class="t-row"><span class="t-ts">[2026-04-08 07:09:51]</span></div>
+          <div class="t-row"><span class="t-err">🔒 IP BLOQUEADO 5min · 45.123.88.9 · brute-force</span></div>
+          <div class="t-sep"></div>
+          <div class="t-row"><span class="t-ts">[2026-04-08 07:14:02]</span></div>
+          <div class="t-row"><span class="t-err">⚠️ TOKEN REUSO SUSPEITO · IP diferente detectado</span></div>
+          <div class="t-sep"></div>
+          <div class="t-row"><span class="t-ts">[2026-04-08 07:22:09]</span></div>
+          <div class="t-row"><span class="t-info">🚪 LOGOUT · jose.silva · sessão encerrada</span></div>
+          <div class="t-sep"></div>
+          <div class="t-row">
+            <span class="t-info">█ monitoramento ativo</span>
+            <span class="cursor-blink"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="ornament-divider"><div class="ornament-diamond"></div></div>
+
+<!-- ══════ COMO FUNCIONA ══════ -->
+<section class="como" id="como">
+  <div class="como-head">
+    <div class="section-label">// implantação</div>
+    <h2 class="section-title">Do contrato à operação.</h2>
+  </div>
+
+  <div class="como-steps">
+    <div class="step">
+      <div class="step-circle"><span>01</span></div>
+      <div class="step-title">Contratação</div>
+      <p class="step-desc">Escolha o plano. Firmamos contrato digital e você recebe acesso ao sistema e ao suporte de implantação.</p>
+    </div>
+    <div class="step">
+      <div class="step-circle"><span>02</span></div>
+      <div class="step-title">Configuração</div>
+      <p class="step-desc">Instalamos o R72 no seu servidor ou VPS. Configuramos domínio, SSL Let's Encrypt e criamos os usuários iniciais.</p>
+    </div>
+    <div class="step">
+      <div class="step-circle"><span>03</span></div>
+      <div class="step-title">Treinamento</div>
+      <p class="step-desc">Sessão de treinamento para gestores e supervisores. Agentes instalam o app no celular em menos de 2 minutos.</p>
+    </div>
+    <div class="step">
+      <div class="step-circle"><span>04</span></div>
+      <div class="step-title">Operação</div>
+      <p class="step-desc">Sistema ativo 24/7 no seu servidor. Você tem controle total. Suporte técnico incluído conforme o plano.</p>
+    </div>
+  </div>
+</section>
+
+<div class="ornament-divider"><div class="ornament-diamond"></div></div>
+
+<!-- ══════ PLANOS ══════ -->
+<section class="planos" id="planos">
+  <div class="planos-head">
+    <div class="section-label">// planos e preços</div>
+    <h2 class="section-title">Investimento que se paga.</h2>
+    <p class="section-desc">Sem taxa por usuário extra. Sem limitação de rondas. Seus dados ficam na sua empresa.</p>
+  </div>
+
+  <div class="planos-grid">
+    <div class="plano">
+      <div class="plano-tier">// PLANO BASE</div>
+      <div class="plano-price">
+        <span class="price-currency">R$</span>
+        <span class="price-number">597</span>
+      </div>
+      <p class="plano-period">implantação · + R$ 147/mês suporte</p>
+      <ul class="plano-items">
+        <li>Todos os 5 módulos</li>
+        <li>Usuários ilimitados</li>
+        <li>App PWA para agentes</li>
+        <li>Instalação assistida</li>
+        <li>Suporte por e-mail</li>
+        <li class="off">Domínio personalizado</li>
+        <li class="off">Treinamento remoto</li>
+      </ul>
+      <a href="#contato" class="btn-plano">Solicitar Proposta</a>
+    </div>
+
+    <div class="plano plano--star">
+      <div class="plano-badge">Mais Escolhido</div>
+      <div class="plano-tier">// OPERACIONAL</div>
+      <div class="plano-price">
+        <span class="price-currency">R$</span>
+        <span class="price-number">997</span>
+      </div>
+      <p class="plano-period">implantação · + R$ 247/mês suporte</p>
+      <ul class="plano-items">
+        <li>Todos os 5 módulos</li>
+        <li>Usuários ilimitados</li>
+        <li>App PWA para agentes</li>
+        <li>Instalação + Domínio SSL</li>
+        <li>Treinamento remoto (4h)</li>
+        <li>Suporte via WhatsApp</li>
+        <li class="off">Personalização de marca</li>
+      </ul>
+      <a href="#contato" class="btn-plano">Solicitar Proposta</a>
+    </div>
+
+    <div class="plano">
+      <div class="plano-tier">// CORPORATIVO</div>
+      <div class="plano-price">
+        <span class="price-number" style="font-size:2rem; margin-top:0.4rem;">Consulta</span>
+      </div>
+      <p class="plano-period">múltiplas filiais · personalização total</p>
+      <ul class="plano-items">
+        <li>Tudo do Operacional</li>
+        <li>Personalização visual</li>
+        <li>Módulos customizados</li>
+        <li>Múltiplas unidades</li>
+        <li>Treinamento presencial</li>
+        <li>SLA garantido em contrato</li>
+      </ul>
+      <a href="#contato" class="btn-plano">Falar com Comercial</a>
+    </div>
+  </div>
+</section>
+
+<div class="ornament-divider"><div class="ornament-diamond"></div></div>
+
+<!-- ══════ CTA FINAL ══════ -->
+<section class="cta-final" id="contato">
+  <div class="cta-glow"></div>
+  <div class="section-label" style="justify-content:center;">// entre em contato</div>
+  <h2 class="section-title">Sua operação merece<br>mais controle.</h2>
+  <p class="section-desc">Fale com a equipe R72. Entendemos o mercado de segurança privada e entregamos o sistema que você realmente precisa.</p>
+
+  <div class="cta-row">
+    <a href="https://wa.me/5543999999999?text=Ol%C3%A1%2C%20tenho%20interesse%20no%20R72%20Legion" class="btn btn-gold" target="_blank">
+      💬 WhatsApp
+    </a>
+    <a href="mailto:contato@r72.tec.br" class="btn btn-outline">
+      ✉️ contato@r72.tec.br
+    </a>
+  </div>
+
+  <p class="cta-note">Resposta em até 4 horas úteis · Proposta personalizada sem compromisso</p>
+</section>
+
+<!-- ══════ FOOTER ══════ -->
+<footer>
+  <div class="footer-logo">R72 LEGION</div>
+  <div class="footer-links">
+    <a href="#modulos">Módulos</a>
+    <a href="#seguranca">Segurança</a>
+    <a href="#planos">Planos</a>
+    <a href="mailto:contato@r72.tec.br">E-mail</a>
+  </div>
+  <div class="footer-copy">© 2026 R72 LEGION · r72.tec.br</div>
+</footer>
+
+<script>
+  // Navbar scroll
+  const nav = document.querySelector('nav');
+  window.addEventListener('scroll', () => {
+    nav.style.borderBottomColor = window.scrollY > 80
+      ? 'rgba(201,168,76,0.3)'
+      : 'rgba(201,168,76,0.18)';
+  });
+
+  // Logo: tenta renderizar PNG com chroma key (remove verde)
+  const logoImg = document.querySelector('.hero-logo-wrap img');
+  if (logoImg) {
+    logoImg.addEventListener('load', () => {
+      // Aplica canvas chroma key para remover o fundo verde do logo
+      try {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = logoImg.naturalWidth;
+        canvas.height = logoImg.naturalHeight;
+        ctx.drawImage(logoImg, 0, 0);
+        const data = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const px = data.data;
+        for (let i = 0; i < px.length; i += 4) {
+          const r = px[i], g = px[i+1], b = px[i+2];
+          // Remove pixels predominantemente verdes
+          if (g > 120 && g > r * 1.4 && g > b * 1.4) {
+            px[i+3] = 0; // transparente
+          }
+        }
+        ctx.putImageData(data, 0, 0);
+        logoImg.src = canvas.toDataURL('image/png');
+        logoImg.style.mixBlendMode = 'normal';
+      } catch(e) {
+        // fallback: mantém mix-blend-mode screen
+      }
+    });
+  }
+</script>
+</body>
+</html>
