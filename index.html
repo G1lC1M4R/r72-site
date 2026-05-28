@@ -1,0 +1,1938 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>R72 Legion — Plataforma de Gestão de Segurança Privada</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Barlow+Condensed:wght@300;400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   TOKENS
+═══════════════════════════════════════════ */
+:root {
+  --gold-light:  #E8C96A;
+  --gold:        #C9A84C;
+  --gold-mid:    #B8941A;
+  --gold-dark:   #8A6A28;
+  --gold-muted:  #5A4518;
+  --gold-deep:   #2a1e08;
+  --ice:         #7ECFF4;
+  --void:        #000000;
+  --abyss:       #050505;
+  --deep:        #090909;
+  --dark1:       #0f0f0f;
+  --dark2:       #161616;
+  --dark3:       #1e1e1e;
+  --mid:         #333;
+  --dim:         #888;
+  --text:        #BBBBBB;
+  --bright:      #E0E0E0;
+  --white:       #F5F5F5;
+  /* granite accent */
+  --granite:     #f0ede8;
+  --granite2:    #e2ddd6;
+  --granite3:    #c8c0b4;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--abyss);
+  color: var(--text);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 18px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* Noise overlay */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0.5;
+}
+
+::selection { background: var(--gold); color: #000; }
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--abyss); }
+::-webkit-scrollbar-thumb { background: var(--gold-dark); }
+
+/* ═══════════════════════════════════════════
+   NAV
+═══════════════════════════════════════════ */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 5%;
+  background: rgba(0,0,0,0.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(201,168,76,0.18);
+  transition: border-color .3s;
+}
+
+.nav-logo {
+  font-family: 'Orbitron', monospace;
+  font-weight: 900; font-size: 1.1rem; letter-spacing: .2em;
+  color: var(--gold); text-decoration: none;
+  display: flex; align-items: center; gap: .65rem;
+}
+.nav-logo-line { width: 26px; height: 2px; background: linear-gradient(90deg, var(--gold), transparent); }
+
+.nav-right { display: flex; align-items: center; gap: 2.5rem; }
+
+nav ul {
+  display: flex; list-style: none; gap: 2.5rem; align-items: center;
+}
+nav ul a {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 600; font-size: .85rem; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--dim); text-decoration: none; transition: color .2s; position: relative;
+}
+nav ul a::after {
+  content: ''; position: absolute; bottom: -4px; left: 0; right: 0;
+  height: 1px; background: var(--gold); transform: scaleX(0); transition: transform .2s;
+}
+nav ul a:hover { color: var(--gold-light); }
+nav ul a:hover::after { transform: scaleX(1); }
+
+/* LOGIN BUTTON */
+.btn-login {
+  display: inline-flex; align-items: center; gap: .5rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; font-size: .82rem; letter-spacing: .2em; text-transform: uppercase;
+  text-decoration: none;
+  padding: .5rem 1.4rem;
+  background: transparent;
+  color: var(--gold-light);
+  border: 1px solid rgba(201,168,76,.4);
+  transition: all .25s;
+  position: relative; overflow: hidden;
+}
+.btn-login::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(201,168,76,.12), transparent);
+  opacity: 0; transition: opacity .25s;
+}
+.btn-login:hover { border-color: var(--gold); color: var(--gold-light); box-shadow: 0 0 18px rgba(201,168,76,.25); }
+.btn-login:hover::before { opacity: 1; }
+.btn-login svg { flex-shrink: 0; }
+
+/* ═══════════════════════════════════════════
+   BUTTONS
+═══════════════════════════════════════════ */
+.btn {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; font-size: .88rem; letter-spacing: .18em; text-transform: uppercase;
+  text-decoration: none; padding: .88rem 2.2rem;
+  display: inline-flex; align-items: center; gap: .5rem;
+  transition: all .25s; cursor: pointer; border: none;
+}
+.btn-gold {
+  background: linear-gradient(135deg, var(--gold-light), var(--gold));
+  color: var(--void);
+}
+.btn-gold:hover { box-shadow: 0 0 40px rgba(201,168,76,.5); filter: brightness(1.1); }
+.btn-outline {
+  background: transparent; color: var(--gold-light);
+  border: 1px solid rgba(201,168,76,.35);
+}
+.btn-outline:hover { border-color: var(--gold); background: rgba(201,168,76,.07); }
+
+/* ═══════════════════════════════════════════
+   DIVIDER
+═══════════════════════════════════════════ */
+.divider {
+  display: flex; align-items: center; justify-content: center;
+  gap: 1rem; padding: 0 5%;
+}
+.divider::before { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, transparent, rgba(201,168,76,.18)); }
+.divider::after  { content: ''; flex: 1; height: 1px; background: linear-gradient(270deg, transparent, rgba(201,168,76,.18)); }
+.divider-diamond { width: 8px; height: 8px; background: var(--gold); transform: rotate(45deg); box-shadow: 0 0 10px rgba(201,168,76,.6); }
+
+/* ═══════════════════════════════════════════
+   HERO
+═══════════════════════════════════════════ */
+.hero {
+  position: relative; min-height: 100vh;
+  background: var(--void);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  overflow: hidden; padding: 80px 5% 100px;
+}
+
+/* Grid background */
+.hero-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(201,168,76,.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(201,168,76,.03) 1px, transparent 1px);
+  background-size: 70px 70px;
+  pointer-events: none;
+}
+
+/* Radial vignette */
+.hero-vignette {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,.85) 100%);
+  pointer-events: none;
+}
+
+/* Ambient glow */
+.hero-glow {
+  position: absolute;
+  width: 700px; height: 700px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(201,168,76,.07) 0%, rgba(201,168,76,.025) 45%, transparent 70%);
+  top: 50%; left: 50%; transform: translate(-50%, -60%);
+  pointer-events: none;
+}
+
+/* Horizontal accent lines */
+.hero-hline {
+  position: absolute; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(201,168,76,.15) 20%, rgba(201,168,76,.28) 50%, rgba(201,168,76,.15) 80%, transparent);
+  pointer-events: none;
+}
+.hl-top    { top: calc(50% - 260px); }
+.hl-bottom { bottom: calc(50% - 340px); }
+
+/* Scan line */
+.hero-scan {
+  position: absolute; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-light), transparent);
+  opacity: 0; animation: scanAnim 7s linear infinite;
+  pointer-events: none;
+}
+@keyframes scanAnim {
+  0%   { top: 0%;   opacity: 0; }
+  5%   { opacity: .25; }
+  95%  { opacity: .25; }
+  100% { top: 100%; opacity: 0; }
+}
+
+.hero-content {
+  position: relative; z-index: 2;
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+}
+
+/* ── EYEBROW ── */
+.hero-eyebrow {
+  display: flex; align-items: center; gap: 1rem; margin-bottom: 2.5rem;
+  animation: fadeDown .8s ease both;
+}
+.eyebrow-line { width: 38px; height: 1px; background: var(--gold); }
+.eyebrow-text {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .68rem; letter-spacing: .25em; color: var(--gold); text-transform: uppercase;
+}
+
+/* ══════════════════════════════
+   ORBIT SCENE
+══════════════════════════════ */
+.orbit-scene {
+  position: relative;
+  width: 340px; height: 340px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 2.8rem;
+  animation: logoReveal 1.1s cubic-bezier(.22,1,.36,1) both;
+  animation-delay: .1s;
+}
+
+.ring {
+  position: absolute; border-radius: 50%; border: 1px solid transparent;
+  top: 50%; left: 50%; transform: translate(-50%,-50%);
+}
+.ring-1 { width: 330px; height: 330px; border-color: rgba(201,168,76,.22); animation: spinR 18s linear infinite; }
+.ring-2 { width: 385px; height: 385px; border-color: rgba(201,168,76,.10); animation: spinR 30s linear infinite reverse; }
+.ring-3 { width: 420px; height: 420px; border-color: rgba(201,168,76,.05); border-style: dashed; animation: spinR 52s linear infinite; }
+
+/* Orbital dots */
+.dot {
+  position: absolute; border-radius: 50%;
+  top: 50%; left: 50%;
+  margin-left: -4px; margin-top: -4px;
+}
+.dot-1 { width: 8px; height: 8px; background: var(--gold-light); box-shadow: 0 0 10px 3px rgba(201,168,76,.6), 0 0 22px rgba(201,168,76,.3); animation: orbit1 18s linear infinite; }
+.dot-2 { width: 6px; height: 6px; background: var(--ice); box-shadow: 0 0 10px 3px rgba(126,207,244,.6); animation: orbit1 18s linear infinite; animation-delay: -9s; }
+.dot-3 { width: 5px; height: 5px; background: var(--gold-light); box-shadow: 0 0 8px 2px rgba(201,168,76,.5); animation: orbit2 30s linear infinite reverse; }
+.dot-4 { width: 6px; height: 6px; background: var(--ice); box-shadow: 0 0 8px 2px rgba(126,207,244,.5); animation: orbit2 30s linear infinite reverse; animation-delay: -15s; }
+
+/* Shield container */
+.logo-svg-container {
+  position: relative; z-index: 5;
+  width: 210px; height: 210px;
+  display: flex; align-items: center; justify-content: center;
+  filter: drop-shadow(0 0 28px rgba(201,168,76,.45)) drop-shadow(0 0 60px rgba(201,168,76,.18));
+  transition: filter .4s, transform .4s;
+}
+.orbit-scene:hover .logo-svg-container {
+  filter: drop-shadow(0 0 48px rgba(201,168,76,.7)) drop-shadow(0 0 90px rgba(201,168,76,.3));
+  transform: scale(1.04);
+}
+
+/* ── ORBIT KEYFRAMES ── */
+@keyframes spinR {
+  from { transform: translate(-50%,-50%) rotate(0deg); }
+  to   { transform: translate(-50%,-50%) rotate(360deg); }
+}
+@keyframes orbit1 {
+  from { transform: translate(-50%,-50%) rotate(0deg)   translateX(165px) rotate(0deg); }
+  to   { transform: translate(-50%,-50%) rotate(360deg) translateX(165px) rotate(-360deg); }
+}
+@keyframes orbit2 {
+  from { transform: translate(-50%,-50%) rotate(0deg)   translateX(192px) rotate(0deg); }
+  to   { transform: translate(-50%,-50%) rotate(360deg) translateX(192px) rotate(-360deg); }
+}
+
+/* ── HERO TEXT ── */
+.hero-title {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(2.6rem, 8vw, 5.5rem); font-weight: 900;
+  letter-spacing: .04em; line-height: .95; color: var(--white);
+  animation: fadeUp .85s ease both; animation-delay: .28s;
+}
+.hero-title em {
+  font-style: normal; display: block;
+  background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 50%, var(--gold-dark) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+
+.hero-sub {
+  font-size: 1.1rem; font-weight: 300; letter-spacing: .1em;
+  color: var(--dim); margin: 1.4rem 0 2.6rem; max-width: 500px;
+  text-transform: uppercase;
+  animation: fadeUp .85s ease both; animation-delay: .42s;
+}
+.hero-sub strong { color: var(--text); font-weight: 600; }
+
+.hero-cta {
+  display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
+  animation: fadeUp .85s ease both; animation-delay: .56s;
+}
+
+/* Scroll hint */
+.scroll-hint {
+  position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: .5rem;
+  z-index: 2; animation: fadeUp 1s ease both; animation-delay: 1.1s;
+}
+.scroll-hint span {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .62rem; letter-spacing: .22em; color: var(--dim); text-transform: uppercase;
+}
+.scroll-arrow {
+  width: 1px; height: 36px;
+  background: linear-gradient(180deg, var(--gold), transparent);
+  animation: scrollDrop 1.8s ease-in-out infinite;
+}
+
+/* ═══════════════════════════════════════════
+   STATS
+═══════════════════════════════════════════ */
+.stats {
+  background: var(--dark1);
+  border-top: 1px solid rgba(201,168,76,.09);
+  border-bottom: 1px solid rgba(201,168,76,.09);
+  padding: 2.5rem 5%;
+  display: flex; justify-content: center; align-items: stretch;
+}
+.stat {
+  flex: 1; max-width: 220px; text-align: center;
+  padding: .5rem 2rem;
+  border-right: 1px solid rgba(201,168,76,.08);
+  display: flex; flex-direction: column; align-items: center;
+}
+.stat:last-child { border-right: none; }
+.stat-num {
+  font-family: 'Orbitron', monospace; font-size: 2.1rem; font-weight: 900;
+  background: linear-gradient(135deg, var(--gold-light), var(--gold));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  line-height: 1;
+}
+.stat-label {
+  font-size: .72rem; letter-spacing: .15em; text-transform: uppercase;
+  color: var(--dim); margin-top: .5rem;
+}
+
+/* ═══════════════════════════════════════════
+   SECTION BASE
+═══════════════════════════════════════════ */
+section { padding: 7rem 5%; }
+
+.section-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .68rem; letter-spacing: .25em; text-transform: uppercase;
+  color: var(--gold); display: flex; align-items: center; gap: .8rem; margin-bottom: .9rem;
+}
+.section-label::before { content: ''; width: 18px; height: 1px; background: var(--gold); }
+
+.section-title {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(1.7rem, 3.5vw, 2.5rem); font-weight: 800;
+  color: var(--white); line-height: 1.1; letter-spacing: .02em; margin-bottom: .9rem;
+}
+
+.section-desc {
+  font-size: 1rem; font-weight: 300; color: var(--dim); line-height: 1.7; max-width: 520px; letter-spacing: .03em;
+}
+
+/* ═══════════════════════════════════════════
+   SOBRE / PLATAFORMA
+═══════════════════════════════════════════ */
+.sobre {
+  background: var(--deep);
+  position: relative; overflow: hidden;
+}
+
+.sobre::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, transparent, var(--gold), var(--gold-light), var(--gold), transparent);
+}
+
+.sobre-inner {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 5rem; align-items: center;
+  max-width: 1200px; margin: 0 auto;
+}
+
+.sobre-features {
+  list-style: none;
+  display: flex; flex-direction: column; gap: 1.1rem;
+  margin-top: 2rem;
+}
+
+.sf-item {
+  display: flex; align-items: center; gap: 1rem;
+  font-size: .95rem; font-weight: 400; letter-spacing: .04em; color: var(--text);
+}
+
+.sf-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--gold); flex-shrink: 0;
+  box-shadow: 0 0 8px rgba(201,168,76,.6);
+}
+
+/* Architecture panel */
+.arch-panel {
+  background: rgba(255,255,255,.02);
+  border: 1px solid rgba(201,168,76,.12);
+  position: relative; overflow: hidden;
+}
+
+.arch-panel::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background-image: radial-gradient(circle at 1px 1px, rgba(201,168,76,.06) 1px, transparent 0);
+  background-size: 30px 30px;
+}
+
+.arch-header {
+  padding: .8rem 1.4rem;
+  border-bottom: 1px solid rgba(201,168,76,.1);
+  background: rgba(201,168,76,.04);
+  display: flex; align-items: center; gap: .7rem;
+}
+.arch-title {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .62rem; letter-spacing: .2em; color: var(--gold);
+  text-transform: uppercase; margin: 0 auto;
+}
+.arch-dots { display: flex; gap: .4rem; }
+.ad { width: 8px; height: 8px; border-radius: 50%; }
+
+.arch-body { padding: 1.2rem; position: relative; z-index: 1; }
+
+.arch-layer {
+  display: flex; align-items: center; gap: 1rem;
+  padding: .9rem 1rem;
+  border: 1px solid rgba(201,168,76,.08);
+  background: rgba(255,255,255,.02);
+  margin-bottom: .5rem; cursor: default;
+  transition: all .25s; position: relative;
+}
+.arch-layer:last-child { margin-bottom: 0; }
+.arch-layer:hover { background: rgba(201,168,76,.06); border-color: rgba(201,168,76,.25); transform: translateX(4px); }
+
+.al-icon { font-size: 16px; width: 22px; text-align: center; flex-shrink: 0; }
+.al-info { flex: 1; }
+.al-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 600; font-size: .9rem; color: var(--bright); letter-spacing: .05em;
+}
+.al-sub {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .6rem; color: var(--dim); margin-top: 1px; letter-spacing: .05em;
+}
+
+/* ═══════════════════════════════════════════
+   MÓDULOS
+═══════════════════════════════════════════ */
+.modulos { background: var(--deep); }
+
+.modulos-head { text-align: center; margin-bottom: 4.5rem; }
+.modulos-head .section-label { justify-content: center; }
+.modulos-head .section-label::before { display: none; }
+.modulos-head .section-desc { margin: 0 auto; }
+
+.modulos-grid {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  gap: 1px; background: rgba(201,168,76,.07);
+  border: 1px solid rgba(201,168,76,.07);
+  max-width: 1200px; margin: 0 auto;
+}
+
+.mod-card {
+  background: var(--dark1);
+  padding: 2.4rem; position: relative;
+  display: flex; flex-direction: column;
+  transition: background .3s;
+}
+.mod-card:hover { background: var(--dark2); }
+.mod-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  opacity: 0; transition: opacity .3s;
+}
+.mod-card:hover::before { opacity: 1; }
+
+.mod-card--wide {
+  grid-column: span 2;
+  background: linear-gradient(135deg, #0d0d0d 0%, var(--dark1) 100%);
+}
+.mod-card--wide::before { opacity: .3; }
+
+.mod-num {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .6rem; letter-spacing: .2em; color: var(--gold-muted);
+  margin-bottom: 1.2rem; display: block;
+}
+
+.mod-icon { font-size: 1.6rem; margin-bottom: 1rem; line-height: 1; }
+
+.mod-title {
+  font-family: 'Orbitron', monospace;
+  font-size: .9rem; font-weight: 700; color: var(--bright);
+  letter-spacing: .05em; margin-bottom: .75rem;
+}
+.mod-card--wide .mod-title { font-size: 1.1rem; }
+
+.mod-desc {
+  font-size: .9rem; font-weight: 300; color: var(--dim); line-height: 1.65; flex: 1;
+}
+
+.mod-tags {
+  display: flex; flex-wrap: wrap; gap: .45rem; margin-top: 1.3rem;
+}
+.mod-tag {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .6rem; letter-spacing: .1em;
+  padding: .28rem .7rem;
+  border: 1px solid rgba(201,168,76,.2);
+  color: var(--gold-dark); text-transform: uppercase;
+}
+
+/* ═══════════════════════════════════════════
+   SEGURANÇA / TERMINAL
+═══════════════════════════════════════════ */
+.seguranca {
+  background: var(--abyss);
+  position: relative; overflow: hidden;
+}
+.seguranca::before {
+  content: ''; position: absolute; top: 0; bottom: 0; right: 0; width: 46%;
+  background: var(--dark1);
+  clip-path: polygon(12% 0%, 100% 0%, 100% 100%, 0% 100%);
+}
+
+.seguranca-inner {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 5.5rem; align-items: center;
+  max-width: 1200px; margin: 0 auto; position: relative;
+}
+
+.seg-feats { display: flex; flex-direction: column; gap: 1.8rem; margin-top: 2.5rem; }
+.seg-feat { display: flex; gap: 1.1rem; align-items: flex-start; }
+.seg-feat-icon {
+  font-family: 'Share Tech Mono', monospace; font-size: .6rem;
+  color: var(--gold); letter-spacing: .1em; flex-shrink: 0; margin-top: .15rem;
+}
+.seg-feat-title {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: .95rem; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--bright); margin-bottom: .25rem;
+}
+.seg-feat-desc { font-size: .88rem; font-weight: 300; color: var(--dim); line-height: 1.6; }
+
+/* Terminal */
+.terminal {
+  background: #040404;
+  border: 1px solid rgba(201,168,76,.15);
+  position: relative;
+}
+.terminal::before {
+  content: ''; position: absolute;
+  inset: -30px;
+  background: radial-gradient(ellipse at center, rgba(201,168,76,.05) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.term-bar {
+  background: rgba(201,168,76,.06);
+  border-bottom: 1px solid rgba(201,168,76,.12);
+  padding: .7rem 1.2rem;
+  display: flex; align-items: center; gap: .7rem;
+}
+.term-dots { display: flex; gap: .4rem; }
+.term-dot { width: 9px; height: 9px; border-radius: 50%; }
+.term-title {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .62rem; letter-spacing: .18em; color: var(--dim);
+  text-transform: uppercase; margin-left: .4rem;
+}
+
+.term-body {
+  padding: 1.4rem;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .72rem; line-height: 2;
+  position: relative; z-index: 1;
+}
+.t-row { display: flex; gap: .5rem; flex-wrap: wrap; }
+.t-ts  { color: #3a3a3a; }
+.t-ok  { color: #4ade80; }
+.t-warn{ color: var(--gold); }
+.t-err { color: #f87171; }
+.t-inf { color: var(--ice); }
+.t-sep { height: 1px; background: rgba(201,168,76,.06); margin: .3rem 0; }
+
+.cursor {
+  display: inline-block; width: 7px; height: 12px;
+  background: var(--gold);
+  animation: cursorBlink 1.1s step-end infinite;
+  vertical-align: middle;
+}
+
+/* ═══════════════════════════════════════════
+   PARA QUEM — GRANITE SECTION
+═══════════════════════════════════════════ */
+.para-quem {
+  background: var(--granite);
+  padding: 7rem 5%;
+  position: relative; overflow: hidden;
+}
+
+.para-quem::before {
+  content: ''; position: absolute; inset: 0;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+.pq-inner { max-width: 1200px; margin: 0 auto; position: relative; }
+
+.pq-header { margin-bottom: 4rem; }
+.pq-header .section-label { color: var(--gold-dark); }
+.pq-header .section-label::before { background: var(--gold-dark); }
+.pq-header .section-title { color: #1a1410; }
+
+.pq-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; }
+
+.pq-card {
+  background: rgba(255,255,255,.7);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(180,160,120,.3);
+  padding: 2rem 1.6rem;
+  position: relative; overflow: hidden;
+  transition: all .3s;
+}
+.pq-card::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--gold-dark), var(--gold));
+  opacity: 0; transition: opacity .3s;
+}
+.pq-card:hover { transform: translateY(-4px); box-shadow: 0 20px 50px rgba(0,0,0,.12); }
+.pq-card:hover::after { opacity: 1; }
+
+.pq-icon { font-size: 2rem; margin-bottom: 1.2rem; display: block; }
+.pq-title {
+  font-family: 'Orbitron', monospace; font-weight: 700;
+  font-size: .82rem; letter-spacing: .06em; color: #1a1410; margin-bottom: .7rem;
+}
+.pq-desc { font-size: .88rem; line-height: 1.7; color: #5a5248; font-weight: 300; }
+
+.pq-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 1rem; }
+.pq-tag {
+  font-family: 'Share Tech Mono', monospace; font-size: .58rem;
+  letter-spacing: .08em; padding: 3px 8px;
+  background: rgba(138,106,40,.1); color: var(--gold-dark);
+  border: 1px solid rgba(138,106,40,.2);
+}
+
+/* ═══════════════════════════════════════════
+   COMO FUNCIONA
+═══════════════════════════════════════════ */
+.como { background: var(--abyss); }
+
+.como-head { text-align: center; margin-bottom: 4.5rem; }
+.como-head .section-label { justify-content: center; }
+.como-head .section-label::before { display: none; }
+
+.como-steps {
+  display: grid; grid-template-columns: repeat(4,1fr);
+  max-width: 1100px; margin: 0 auto; position: relative;
+}
+.como-steps::before {
+  content: ''; position: absolute;
+  top: 25px; left: calc(12.5% + 10px); right: calc(12.5% + 10px); height: 1px;
+  background: linear-gradient(90deg, rgba(201,168,76,.4), rgba(201,168,76,.15) 50%, rgba(201,168,76,.4));
+}
+
+.step { padding: 0 1.4rem; text-align: center; }
+
+.step-circle {
+  width: 50px; height: 50px;
+  border: 1px solid rgba(201,168,76,.3);
+  background: var(--dark1);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 1.4rem; position: relative; z-index: 1;
+}
+.step-circle span {
+  font-family: 'Orbitron', monospace; font-size: .95rem; font-weight: 800; color: var(--gold);
+}
+.step-title {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: .9rem; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--bright); margin-bottom: .45rem;
+}
+.step-desc { font-size: .88rem; font-weight: 300; color: var(--dim); line-height: 1.6; }
+
+/* ═══════════════════════════════════════════
+   API SECTION
+═══════════════════════════════════════════ */
+.api-section {
+  background: var(--dark1);
+  position: relative; overflow: hidden;
+}
+.api-section::before {
+  content: ''; position: absolute; inset: 0;
+  background-image: radial-gradient(circle at 1px 1px, rgba(201,168,76,.04) 1px, transparent 0);
+  background-size: 40px 40px; pointer-events: none;
+}
+
+.api-inner {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 5rem; align-items: center;
+  max-width: 1200px; margin: 0 auto; position: relative;
+}
+
+.api-list { list-style: none; display: flex; flex-direction: column; gap: .9rem; margin: 1.8rem 0; }
+.api-list li {
+  display: flex; align-items: flex-start; gap: .8rem;
+  font-size: .9rem; font-weight: 300; color: var(--text);
+}
+.api-list li::before { content: '◆'; color: var(--gold); font-size: .5rem; flex-shrink: 0; margin-top: .35rem; }
+
+/* Code block */
+.code-block {
+  background: #040404; border: 1px solid rgba(201,168,76,.15); overflow: hidden;
+}
+.cb-bar {
+  display: flex; align-items: center; gap: .6rem;
+  padding: .7rem 1.2rem;
+  border-bottom: 1px solid rgba(201,168,76,.1);
+  background: rgba(201,168,76,.04);
+}
+.cb-dot { width: 8px; height: 8px; border-radius: 50%; }
+.cb-title {
+  font-family: 'Share Tech Mono', monospace; font-size: .6rem;
+  color: var(--dim); letter-spacing: .18em; margin: 0 auto;
+}
+.cb-code {
+  padding: 1.4rem 1.6rem;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .72rem; line-height: 2; color: rgba(255,255,255,.65);
+}
+.ck { color: var(--gold-light); }
+.cs { color: #a8e6a3; }
+.cn { color: #7eb8f5; }
+.cm { color: #9a8af5; }
+.cc { color: rgba(201,168,76,.45); }
+
+/* ═══════════════════════════════════════════
+   PLANOS
+═══════════════════════════════════════════ */
+.planos { background: var(--dark2); }
+
+.planos-head { text-align: center; margin-bottom: 4.5rem; }
+.planos-head .section-label { justify-content: center; }
+.planos-head .section-label::before { display: none; }
+.planos-head .section-desc { margin: 0 auto; }
+
+.planos-grid {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  gap: 1px; background: rgba(201,168,76,.07);
+  border: 1px solid rgba(201,168,76,.07);
+  max-width: 980px; margin: 0 auto;
+}
+
+.plano {
+  background: var(--dark1); padding: 2.8rem 2.3rem;
+  display: flex; flex-direction: column; position: relative;
+  transition: background .3s;
+}
+.plano:hover { background: #131313; }
+
+.plano--star {
+  background: linear-gradient(180deg, #130f08 0%, var(--dark1) 65%);
+}
+.plano--star::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+
+.plano-badge {
+  position: absolute; top: -1px; right: 2rem;
+  background: var(--gold); color: var(--void);
+  font-family: 'Orbitron', monospace; font-size: .58rem; font-weight: 800;
+  letter-spacing: .15em; padding: .28rem .85rem; text-transform: uppercase;
+}
+
+.plano-tier {
+  font-family: 'Share Tech Mono', monospace; font-size: .62rem;
+  letter-spacing: .25em; color: var(--gold-dark); text-transform: uppercase; margin-bottom: 1.8rem;
+}
+
+.plano-price {
+  font-family: 'Orbitron', monospace; font-size: 1.2rem; font-weight: 800;
+  color: var(--gold-light); line-height: 1.2; margin-bottom: .5rem;
+}
+.plano-price-sub {
+  font-size: .82rem; font-weight: 300; color: var(--dim);
+  letter-spacing: .06em; margin-bottom: 2.2rem; line-height: 1.5;
+}
+
+.plano-items {
+  list-style: none; display: flex; flex-direction: column; gap: .75rem;
+  flex: 1; margin-bottom: 2.2rem;
+}
+.plano-items li {
+  display: flex; align-items: center; gap: .7rem;
+  font-size: .92rem; font-weight: 400; color: var(--text); letter-spacing: .03em;
+}
+.plano-items li::before { content: ''; width: 13px; height: 1px; background: var(--gold); flex-shrink: 0; }
+.plano-items li.off { color: var(--mid); text-decoration: line-through; }
+.plano-items li.off::before { background: var(--mid); }
+
+.btn-plano {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: .82rem; letter-spacing: .18em; text-transform: uppercase;
+  text-decoration: none; padding: .82rem; text-align: center;
+  border: 1px solid rgba(201,168,76,.25); color: var(--gold);
+  background: transparent; transition: all .25s; cursor: pointer; display: block;
+}
+.btn-plano:hover { border-color: var(--gold); background: rgba(201,168,76,.07); }
+.plano--star .btn-plano {
+  background: linear-gradient(135deg, var(--gold-light), var(--gold));
+  color: var(--void); border-color: transparent;
+}
+.plano--star .btn-plano:hover { box-shadow: 0 0 28px rgba(201,168,76,.38); filter: brightness(1.08); }
+
+/* ═══════════════════════════════════════════
+   CTA FINAL
+═══════════════════════════════════════════ */
+.cta-final {
+  background: var(--void);
+  text-align: center; padding: 9rem 5%;
+  position: relative; overflow: hidden;
+}
+.cta-final::before {
+  content: 'R72';
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  font-family: 'Orbitron', monospace; font-weight: 900; font-size: 28vw;
+  color: rgba(201,168,76,.025); line-height: 1; pointer-events: none;
+  letter-spacing: -.02em; white-space: nowrap;
+}
+.cta-glow {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  width: 800px; height: 400px;
+  background: radial-gradient(ellipse, rgba(201,168,76,.05) 0%, transparent 70%);
+  pointer-events: none;
+}
+.cta-final .section-label { justify-content: center; }
+.cta-final .section-label::before { display: none; }
+.cta-final .section-title { font-size: clamp(1.9rem,4.5vw,3.2rem); max-width: 680px; margin: .8rem auto 1.3rem; }
+.cta-final .section-desc { margin: 0 auto 2.8rem; }
+.cta-row { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; position: relative; z-index: 1; }
+.cta-note {
+  font-size: .78rem; font-weight: 300; color: var(--mid);
+  letter-spacing: .08em; margin-top: 1.8rem; position: relative; z-index: 1;
+}
+
+/* Contact cards */
+.contato-cards {
+  display: flex; gap: 1px;
+  max-width: 680px; margin: 0 auto 2.5rem;
+  background: rgba(201,168,76,.07);
+  border: 1px solid rgba(201,168,76,.07);
+  position: relative; z-index: 1;
+}
+.contato-card {
+  flex: 1; background: var(--dark1); padding: 2rem 1.8rem;
+  text-align: center; transition: background .3s;
+}
+.contato-card:hover { background: var(--dark2); }
+.cc-icon { font-size: 1.8rem; margin-bottom: .9rem; line-height: 1; display: block; }
+.cc-title {
+  font-family: 'Orbitron', monospace; font-size: .76rem; font-weight: 700;
+  letter-spacing: .1em; color: var(--bright); margin-bottom: .4rem;
+}
+.cc-info {
+  font-family: 'Share Tech Mono', monospace; font-size: .7rem;
+  letter-spacing: .08em; color: var(--gold); margin-bottom: 1.2rem;
+}
+.cc-desc { font-size: .82rem; font-weight: 300; color: var(--dim); line-height: 1.5; margin-bottom: 1.4rem; }
+
+.btn-wpp, .btn-email {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: .78rem; letter-spacing: .18em; text-transform: uppercase;
+  text-decoration: none; padding: .7rem 1.4rem; display: inline-block; transition: all .25s;
+}
+.btn-wpp { background: linear-gradient(135deg, var(--gold-light), var(--gold)); color: var(--void); }
+.btn-wpp:hover { box-shadow: 0 0 28px rgba(201,168,76,.45); filter: brightness(1.1); }
+.btn-email { border: 1px solid rgba(201,168,76,.3); color: var(--gold-light); background: transparent; }
+.btn-email:hover { border-color: var(--gold); background: rgba(201,168,76,.07); }
+
+/* ═══════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════ */
+footer {
+  background: #030303;
+  border-top: 1px solid rgba(201,168,76,.08);
+  padding: 4rem 5% 2rem;
+}
+.footer-inner { max-width: 1200px; margin: 0 auto; }
+.footer-top {
+  display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 4rem; margin-bottom: 3rem;
+}
+.footer-brand-name {
+  font-family: 'Orbitron', monospace; font-weight: 900;
+  font-size: 1.1rem; letter-spacing: .2em; color: var(--gold);
+  margin-bottom: 1rem; display: block;
+}
+.footer-desc {
+  font-size: .85rem; font-weight: 300; color: var(--dim); line-height: 1.7; max-width: 280px;
+}
+.footer-col-title {
+  font-family: 'Share Tech Mono', monospace; font-size: .6rem;
+  letter-spacing: .25em; color: var(--gold-dark); text-transform: uppercase; margin-bottom: 1.2rem;
+}
+.footer-links { list-style: none; display: flex; flex-direction: column; gap: .7rem; }
+.footer-links a {
+  font-size: .85rem; font-weight: 300; color: var(--dim); text-decoration: none; transition: color .2s;
+}
+.footer-links a:hover { color: var(--gold-light); }
+.footer-bottom {
+  border-top: 1px solid rgba(255,255,255,.04);
+  padding-top: 1.5rem;
+  display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+}
+.footer-copy {
+  font-family: 'Share Tech Mono', monospace; font-size: .6rem;
+  color: rgba(255,255,255,.18); letter-spacing: 1px; flex: 1;
+}
+.footer-tag {
+  font-family: 'Share Tech Mono', monospace; font-size: .58rem;
+  color: var(--gold-muted); letter-spacing: .2em;
+  border: 1px solid rgba(201,168,76,.12);
+  padding: 3px 10px;
+}
+
+/* ═══════════════════════════════════════════
+   ANIMATIONS
+═══════════════════════════════════════════ */
+@keyframes fadeUp   { from { opacity:0; transform:translateY(22px); } to { opacity:1; transform:translateY(0); } }
+@keyframes fadeDown { from { opacity:0; transform:translateY(-16px); } to { opacity:1; transform:translateY(0); } }
+@keyframes logoReveal { from { opacity:0; transform:scale(.88); } to { opacity:1; transform:scale(1); } }
+@keyframes cursorBlink { 0%,100% { opacity:1; } 50% { opacity:0; } }
+@keyframes scrollDrop { 0%,100% { opacity:0; transform:scaleY(0); transform-origin:top; } 30%,70% { opacity:1; transform:scaleY(1); } }
+
+.reveal { opacity:0; transform:translateY(28px); transition:opacity .7s ease, transform .7s ease; }
+.reveal.visible { opacity:1; transform:translateY(0); }
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  .modulos-grid { grid-template-columns: repeat(2,1fr); }
+  .mod-card--wide { grid-column: span 1; }
+  .pq-grid { grid-template-columns: repeat(2,1fr); }
+  .sobre-inner, .seguranca-inner, .api-inner { grid-template-columns: 1fr; gap: 3rem; }
+  .seguranca::before { display: none; }
+  .footer-top { grid-template-columns: 1fr 1fr; gap: 2.5rem; }
+}
+@media (max-width: 640px) {
+  .modulos-grid, .pq-grid, .planos-grid, .como-steps { grid-template-columns: 1fr; }
+  .como-steps::before { display: none; }
+  .stats { flex-wrap: wrap; }
+  .stat { border-right: none; border-bottom: 1px solid rgba(201,168,76,.08); }
+  nav ul { display: none; }
+  .orbit-scene { width: 260px; height: 260px; }
+  .ring-1 { width: 250px; height: 250px; }
+  .ring-2 { width: 290px; height: 290px; }
+  .ring-3 { width: 320px; height: 320px; }
+  .logo-svg-container { width: 160px; height: 160px; }
+  .contato-cards { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ NAV ═══ -->
+<nav id="nav">
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-line"></div>
+    R72 LEGION
+  </a>
+
+  <ul>
+    <li><a href="#sobre">Plataforma</a></li>
+    <li><a href="#modulos">Módulos</a></li>
+    <li><a href="#para-quem">Soluções</a></li>
+    <li><a href="#api">API</a></li>
+    <li><a href="#planos">Planos</a></li>
+  </ul>
+
+  <a href="https://login.r72.tec.br/" target="_blank" class="btn-login">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+      <polyline points="10 17 15 12 10 7"/>
+      <line x1="15" y1="12" x2="3" y2="12"/>
+    </svg>
+    Acessar Sistema
+  </a>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-vignette"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-hline hl-top"></div>
+  <div class="hero-hline hl-bottom"></div>
+  <div class="hero-scan"></div>
+
+  <div class="hero-content">
+
+    <div class="hero-eyebrow">
+      <div class="eyebrow-line"></div>
+      <div class="eyebrow-text">Gestão Tática · Segurança Privada · Plataforma SaaS</div>
+      <div class="eyebrow-line"></div>
+    </div>
+
+    <!-- ORBIT + SHIELD -->
+    <div class="orbit-scene">
+      <!-- Rings -->
+      <div class="ring ring-1"></div>
+      <div class="ring ring-2"></div>
+      <div class="ring ring-3"></div>
+      <!-- Dots -->
+      <div class="dot dot-1"></div>
+      <div class="dot dot-2"></div>
+      <div class="dot dot-3"></div>
+      <div class="dot dot-4"></div>
+      <!-- Shield SVG -->
+      <div class="logo-svg-container">
+        <svg viewBox="0 0 200 230" fill="none" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+          <!-- Wings left -->
+          <path d="M95 112C82 102 55 88 28 98C42 88 70 84 95 105Z" fill="url(#wg)" opacity=".75"/>
+          <path d="M95 118C78 114 45 105 22 116C38 103 72 100 95 114Z" fill="url(#wg)" opacity=".55"/>
+          <path d="M95 124C72 122 38 118 18 130C34 114 70 109 95 121Z" fill="url(#wg)" opacity=".35"/>
+          <!-- Wings right -->
+          <path d="M105 112C118 102 145 88 172 98C158 88 130 84 105 105Z" fill="url(#wg)" opacity=".75"/>
+          <path d="M105 118C122 114 155 105 178 116C162 103 128 100 105 114Z" fill="url(#wg)" opacity=".55"/>
+          <path d="M105 124C128 122 162 118 182 130C166 114 130 109 105 121Z" fill="url(#wg)" opacity=".35"/>
+          <!-- Main shield body -->
+          <path d="M100 12L156 36V96C156 138 132 168 100 180C68 168 44 138 44 96V36L100 12Z" fill="url(#sg1)"/>
+          <path d="M100 12L156 36V96C156 138 132 168 100 180C68 168 44 138 44 96V36L100 12Z" fill="none" stroke="url(#sg2)" stroke-width="1.5"/>
+          <!-- Inner shield -->
+          <path d="M100 24L142 44V96C142 128 122 152 100 162C78 152 58 128 58 96V44L100 24Z" fill="rgba(0,0,0,0.5)"/>
+          <!-- Circuit traces -->
+          <circle cx="100" cy="68" r="2.5" fill="#7ECFF4" opacity=".7"/>
+          <line x1="102.5" y1="68" x2="120" y2="68" stroke="#7ECFF4" stroke-width=".8" opacity=".5"/>
+          <circle cx="120" cy="68" r="1.8" fill="#7ECFF4" opacity=".4"/>
+          <line x1="120" y1="66" x2="120" y2="58" stroke="#7ECFF4" stroke-width=".8" opacity=".3"/>
+          <circle cx="75" cy="90" r="2" fill="#7ECFF4" opacity=".6"/>
+          <line x1="77" y1="90" x2="88" y2="90" stroke="#7ECFF4" stroke-width=".8" opacity=".4"/>
+          <line x1="75" y1="92" x2="75" y2="104" stroke="#7ECFF4" stroke-width=".8" opacity=".3"/>
+          <circle cx="124" cy="108" r="1.8" fill="#7ECFF4" opacity=".4"/>
+          <line x1="122" y1="108" x2="112" y2="108" stroke="#7ECFF4" stroke-width=".8" opacity=".3"/>
+          <!-- R72 wordmark with flanking lines -->
+          <line x1="58" y1="128" x2="74" y2="128" stroke="url(#wg)" stroke-width="1.2" opacity=".7"/>
+          <line x1="126" y1="128" x2="142" y2="128" stroke="url(#wg)" stroke-width="1.2" opacity=".7"/>
+          <text x="100" y="138" text-anchor="middle" fill="url(#tg)" font-family="Orbitron,sans-serif" font-weight="900" font-size="32" letter-spacing="3">R72</text>
+          <defs>
+            <linearGradient id="wg" x1="0" y1="0" x2="200" y2="0">
+              <stop offset="0%"  stop-color="#5A4518"/>
+              <stop offset="45%" stop-color="#E8C96A"/>
+              <stop offset="100%" stop-color="#8A6A28"/>
+            </linearGradient>
+            <linearGradient id="sg1" x1="44" y1="12" x2="156" y2="180">
+              <stop offset="0%"  stop-color="#3a2808"/>
+              <stop offset="40%" stop-color="#1e1408"/>
+              <stop offset="100%" stop-color="#0a0804"/>
+            </linearGradient>
+            <linearGradient id="sg2" x1="44" y1="12" x2="156" y2="180">
+              <stop offset="0%"  stop-color="#E8C96A" stop-opacity=".9"/>
+              <stop offset="50%" stop-color="#C9A84C" stop-opacity=".6"/>
+              <stop offset="100%" stop-color="#5A4518" stop-opacity=".3"/>
+            </linearGradient>
+            <linearGradient id="tg" x1="68" y1="106" x2="132" y2="138">
+              <stop offset="0%"  stop-color="#F5D878"/>
+              <stop offset="50%" stop-color="#E8C96A"/>
+              <stop offset="100%" stop-color="#C9A84C"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+    </div>
+
+    <h1 class="hero-title">
+      GESTÃO TÁTICA<br><em>DE SEGURANÇA</em>
+    </h1>
+
+    <p class="hero-sub">
+      <strong>Plataforma completa</strong> para empresas de segurança privada —<br>
+      do agente em campo ao cliente final
+    </p>
+
+    <div class="hero-cta">
+      <a href="#contato" class="btn btn-gold">Solicitar Demonstração</a>
+      <a href="https://login.r72.tec.br/" target="_blank" class="btn btn-outline">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+          <polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/>
+        </svg>
+        Acessar o Sistema
+      </a>
+    </div>
+  </div>
+
+  <div class="scroll-hint">
+    <span>Rolar</span>
+    <div class="scroll-arrow"></div>
+  </div>
+</section>
+
+<!-- ═══ STATS ═══ -->
+<div class="stats">
+  <div class="stat"><div class="stat-num">6</div><div class="stat-label">Módulos Integrados</div></div>
+  <div class="stat"><div class="stat-num">100%</div><div class="stat-label">GPS Offline Nativo</div></div>
+  <div class="stat"><div class="stat-num">Multi</div><div class="stat-label">Empresa & Cliente</div></div>
+  <div class="stat"><div class="stat-num">API</div><div class="stat-label">Integrações Abertas</div></div>
+  <div class="stat"><div class="stat-num">LGPD</div><div class="stat-label">Conformidade Total</div></div>
+</div>
+
+<!-- ═══ SOBRE ═══ -->
+<section class="sobre" id="sobre">
+  <div class="sobre-inner">
+    <div class="reveal">
+      <div class="section-label">O que é o R72 Legion</div>
+      <h2 class="section-title">Uma plataforma.<br>Todo o controle.</h2>
+      <p class="section-desc">Infraestrutura tecnológica para empresas de segurança privada. Do agente em campo ao cliente final — rastreabilidade total, evidência em cada etapa.</p>
+      <ul class="sobre-features">
+        <li class="sf-item"><div class="sf-dot"></div>Isolamento total de dados por empresa — multi-tenant real</li>
+        <li class="sf-item"><div class="sf-dot"></div>Rondas com GPS e geofence por posto de segurança</li>
+        <li class="sf-item"><div class="sf-dot"></div>Sistema de pânico com escalação automática para supervisores</li>
+        <li class="sf-item"><div class="sf-dot"></div>Portal do cliente com transparência operacional completa</li>
+        <li class="sf-item"><div class="sf-dot"></div>API pública para integração com controle de acesso e seguradoras</li>
+        <li class="sf-item"><div class="sf-dot"></div>Funciona offline — GPS nativo sem dependência de rede</li>
+      </ul>
+    </div>
+
+    <div class="arch-panel reveal" style="transition-delay:.2s">
+      <div class="arch-header">
+        <div class="arch-dots">
+          <div class="ad" style="background:#ff5f56"></div>
+          <div class="ad" style="background:#ffbd2e"></div>
+          <div class="ad" style="background:#27c93f"></div>
+        </div>
+        <div class="arch-title">// ARQUITETURA DA PLATAFORMA</div>
+      </div>
+      <div class="arch-body">
+        <div class="arch-layer"><div class="al-icon">🔐</div><div class="al-info"><div class="al-name">Auth Gateway</div><div class="al-sub">Login central · Roteamento · Tokens seguros</div></div></div>
+        <div class="arch-layer"><div class="al-icon">🛡️</div><div class="al-info"><div class="al-name">Agentes de Campo</div><div class="al-sub">Rondas GPS · Pânico · Check-in de turno</div></div></div>
+        <div class="arch-layer"><div class="al-icon">👁️</div><div class="al-info"><div class="al-name">Supervisores</div><div class="al-sub">Ocorrências · Vistorias · Gestão de rondas</div></div></div>
+        <div class="arch-layer"><div class="al-icon">📡</div><div class="al-info"><div class="al-name">Dashboard Operacional</div><div class="al-sub">Monitoramento em tempo real · Alertas</div></div></div>
+        <div class="arch-layer"><div class="al-icon">🏛️</div><div class="al-info"><div class="al-name">Portal do Cliente</div><div class="al-sub">Síndicos · Gerentes · Transparência</div></div></div>
+        <div class="arch-layer"><div class="al-icon">💬</div><div class="al-info"><div class="al-name">Chat Operacional</div><div class="al-sub">Comunicação interna · Isolado por empresa</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"><div class="divider-diamond"></div></div>
+
+<!-- ═══ PROVA SOCIAL — 300+ USUÁRIOS ═══ -->
+<section class="prova-social">
+  <div class="ps-inner">
+
+    <!-- NÚMERO DESTAQUE -->
+    <div class="ps-hero reveal">
+      <div class="ps-number-wrap">
+        <div class="ps-number-glow"></div>
+        <div class="ps-number">300<span class="ps-plus">+</span></div>
+        <div class="ps-number-sub">USUÁRIOS ATIVOS NA PLATAFORMA</div>
+      </div>
+      <div class="ps-tagline">
+        Empresas de segurança privada já confiam no R72 Legion<br>
+        para gerenciar suas operações de campo em Londrina e região.
+      </div>
+    </div>
+
+    <!-- MÉTRICAS EM LINHA -->
+    <div class="ps-metrics reveal" style="transition-delay:.15s">
+      <div class="ps-metric">
+        <div class="ps-m-val">300<span>+</span></div>
+        <div class="ps-m-icon">🛡️</div>
+        <div class="ps-m-lbl">Agentes de<br>campo ativos</div>
+      </div>
+      <div class="ps-metric-sep"></div>
+      <div class="ps-metric">
+        <div class="ps-m-val">24<span>h</span></div>
+        <div class="ps-m-icon">📡</div>
+        <div class="ps-m-lbl">Monitoramento<br>ininterrupto</div>
+      </div>
+      <div class="ps-metric-sep"></div>
+      <div class="ps-metric">
+        <div class="ps-m-val">100<span>%</span></div>
+        <div class="ps-m-icon">📍</div>
+        <div class="ps-m-lbl">Rondas com<br>validação GPS</div>
+      </div>
+      <div class="ps-metric-sep"></div>
+      <div class="ps-metric">
+        <div class="ps-m-val">&lt;4<span>min</span></div>
+        <div class="ps-m-icon">🚨</div>
+        <div class="ps-m-lbl">Tempo médio de<br>resposta ao pânico</div>
+      </div>
+      <div class="ps-metric-sep"></div>
+      <div class="ps-metric">
+        <div class="ps-m-val">0<span>kb</span></div>
+        <div class="ps-m-icon">📶</div>
+        <div class="ps-m-lbl">Rondas funcionam<br>sem internet</div>
+      </div>
+    </div>
+
+    <!-- DEPOIMENTOS -->
+    <div class="ps-testimonials reveal" style="transition-delay:.25s">
+      <div class="ps-test">
+        <div class="ps-test-quote">"Antes o supervisor ligava para saber se a ronda foi feita. Hoje eu abro o sistema e vejo tudo — horário, foto, GPS. A transparência com o cliente melhorou completamente."</div>
+        <div class="ps-test-author">
+          <div class="ps-test-avatar">GS</div>
+          <div>
+            <div class="ps-test-name">Gestor Operacional</div>
+            <div class="ps-test-role">Empresa de Segurança · Londrina — PR</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ps-test ps-test--center">
+        <div class="ps-test-quote">"O síndico me cobrava relatório toda semana. Hoje ele acessa o portal e vê as rondas em tempo real. Renovamos o contrato sem negociação."</div>
+        <div class="ps-test-author">
+          <div class="ps-test-avatar">RS</div>
+          <div>
+            <div class="ps-test-name">Supervisor de Campo</div>
+            <div class="ps-test-role">Segurança Condominial · Região de Londrina</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ps-test">
+        <div class="ps-test-quote">"O sistema de pânico foi o que nos convenceu. Em menos de 4 minutos o supervisor estava no local. Não tem como provar isso sem um sistema como o R72."</div>
+        <div class="ps-test-author">
+          <div class="ps-test-avatar">CM</div>
+          <div>
+            <div class="ps-test-name">Síndico Profissional</div>
+            <div class="ps-test-role">Gestão de 8 condomínios · Londrina — PR</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<style>
+/* ═══ PROVA SOCIAL ═══ */
+.prova-social {
+  background: var(--dark1);
+  padding: 7rem 5%;
+  position: relative; overflow: hidden;
+  border-top: 1px solid rgba(201,168,76,.07);
+  border-bottom: 1px solid rgba(201,168,76,.07);
+}
+
+.prova-social::before {
+  content: ''; position: absolute;
+  top: 50%; left: 50%; transform: translate(-50%,-50%);
+  width: 800px; height: 800px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(201,168,76,.04) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+.ps-inner {
+  max-width: 1200px; margin: 0 auto;
+  display: flex; flex-direction: column; gap: 5rem;
+}
+
+/* NÚMERO HERO */
+.ps-hero {
+  text-align: center;
+  display: flex; flex-direction: column; align-items: center; gap: 1.5rem;
+}
+
+.ps-number-wrap {
+  position: relative; display: inline-block;
+}
+
+.ps-number-glow {
+  position: absolute; inset: -40px;
+  background: radial-gradient(circle, rgba(201,168,76,.15) 0%, transparent 65%);
+  pointer-events: none;
+  animation: psGlow 3s ease-in-out infinite alternate;
+}
+@keyframes psGlow {
+  from { opacity: .6; transform: scale(.9); }
+  to   { opacity: 1;  transform: scale(1.1); }
+}
+
+.ps-number {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(5rem, 14vw, 10rem);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -.02em;
+  background: linear-gradient(135deg, #f5d878 0%, var(--gold-light) 35%, var(--gold) 65%, var(--gold-dark) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  position: relative; z-index: 1;
+}
+
+.ps-plus {
+  font-size: 55%;
+  vertical-align: super;
+  background: linear-gradient(135deg, var(--gold-light), var(--gold));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+
+.ps-number-sub {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: clamp(.6rem, 1.2vw, .75rem);
+  letter-spacing: .35em; text-transform: uppercase;
+  color: var(--gold-dark); margin-top: .5rem;
+  position: relative; z-index: 1;
+}
+
+.ps-tagline {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  font-weight: 300; letter-spacing: .04em; line-height: 1.6;
+  color: var(--dim); max-width: 560px; text-align: center;
+}
+
+/* MÉTRICAS */
+.ps-metrics {
+  display: flex; align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,.02);
+  border: 1px solid rgba(201,168,76,.08);
+  padding: 2.5rem 2rem;
+  flex-wrap: wrap; gap: 0;
+}
+
+.ps-metric {
+  flex: 1; min-width: 140px;
+  text-align: center; padding: 1rem 1.5rem;
+  display: flex; flex-direction: column; align-items: center; gap: .5rem;
+}
+
+.ps-m-val {
+  font-family: 'Orbitron', monospace;
+  font-size: 2rem; font-weight: 900; line-height: 1;
+  background: linear-gradient(135deg, var(--gold-light), var(--gold));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.ps-m-val span {
+  font-size: 55%; opacity: .8;
+  background: linear-gradient(135deg, var(--gold-light), var(--gold));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+
+.ps-m-icon { font-size: 1.2rem; line-height: 1; }
+
+.ps-m-lbl {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .72rem; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--dim); line-height: 1.4; text-align: center;
+}
+
+.ps-metric-sep {
+  width: 1px; height: 60px;
+  background: linear-gradient(180deg, transparent, rgba(201,168,76,.15), transparent);
+  flex-shrink: 0;
+}
+
+/* DEPOIMENTOS */
+.ps-testimonials {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  gap: 1px; background: rgba(201,168,76,.06);
+  border: 1px solid rgba(201,168,76,.06);
+}
+
+.ps-test {
+  background: var(--dark2);
+  padding: 2.4rem 2rem;
+  display: flex; flex-direction: column; gap: 1.5rem;
+  transition: background .3s;
+  position: relative;
+}
+.ps-test:hover { background: #141414; }
+
+.ps-test--center {
+  background: linear-gradient(180deg, #130f08 0%, var(--dark2) 100%);
+  position: relative;
+}
+.ps-test--center::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+
+.ps-test-quote {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1rem; font-weight: 300; line-height: 1.7;
+  color: var(--text); letter-spacing: .02em;
+  flex: 1;
+  position: relative; padding-left: 1.2rem;
+}
+.ps-test-quote::before {
+  content: '"';
+  position: absolute; left: 0; top: -.15rem;
+  font-family: 'Orbitron', monospace; font-size: 1.8rem;
+  color: var(--gold-dark); line-height: 1; font-weight: 900;
+}
+
+.ps-test-author {
+  display: flex; align-items: center; gap: .9rem;
+  border-top: 1px solid rgba(201,168,76,.08);
+  padding-top: 1.2rem;
+}
+
+.ps-test-avatar {
+  width: 38px; height: 38px;
+  background: linear-gradient(135deg, var(--gold-muted), var(--gold-dark));
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Orbitron', monospace; font-weight: 800; font-size: .65rem;
+  color: rgba(255,255,255,.6); flex-shrink: 0;
+}
+
+.ps-test-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; font-size: .88rem; letter-spacing: .08em;
+  color: var(--bright);
+}
+.ps-test-role {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .6rem; letter-spacing: .08em; color: var(--gold-dark); margin-top: 2px;
+}
+
+@media (max-width: 1024px) {
+  .ps-testimonials { grid-template-columns: 1fr; }
+  .ps-metrics { gap: 8px; }
+  .ps-metric-sep { display: none; }
+}
+@media (max-width: 640px) {
+  .ps-metric { min-width: 120px; }
+}
+</style>
+
+<!-- ═══ MÓDULOS ═══ -->
+<section class="modulos" id="modulos">
+  <div class="modulos-head reveal">
+    <div class="section-label">Módulos da Plataforma</div>
+    <h2 class="section-title">Cada função pensada<br>para o campo.</h2>
+    <p class="section-desc">Seis módulos integrados que cobrem toda a operação — do agente ao cliente final, com rastreabilidade completa.</p>
+  </div>
+
+  <div class="modulos-grid">
+    <div class="mod-card mod-card--wide reveal">
+      <span class="mod-num">01 — RONDAS</span>
+      <div class="mod-icon">📍</div>
+      <div class="mod-title">Rondas com Validação GPS e Geofence</div>
+      <p class="mod-desc">Agentes autenticam presença em cada posto via GPS com validação por raio configurável (geofence). Funciona offline com GPS nativo do dispositivo. Cada autenticação registra distância do posto, horário exato e foto quando necessário. Histórico completo de cobertura por turno.</p>
+      <div class="mod-tags">
+        <span class="mod-tag">GPS Offline</span>
+        <span class="mod-tag">Geofence</span>
+        <span class="mod-tag">Evidência Fotográfica</span>
+        <span class="mod-tag">Histórico</span>
+      </div>
+    </div>
+
+    <div class="mod-card reveal" style="transition-delay:.1s">
+      <span class="mod-num">02 — SEGURANÇA</span>
+      <div class="mod-icon">🚨</div>
+      <div class="mod-title">Sistema de Pânico</div>
+      <p class="mod-desc">Botão de emergência com escalação imediata. Supervisor recebe alerta em tempo real, relata a ocorrência, registra resolução e foto. Todos os supervisores da empresa visualizam o histórico.</p>
+      <div class="mod-tags">
+        <span class="mod-tag">Tempo Real</span>
+        <span class="mod-tag">SocketIO</span>
+      </div>
+    </div>
+
+    <div class="mod-card reveal" style="transition-delay:.15s">
+      <span class="mod-num">03 — SUPERVISÃO</span>
+      <div class="mod-icon">👁️</div>
+      <div class="mod-title">Supervisão em Tempo Real</div>
+      <p class="mod-desc">Dashboard do supervisor com agentes em campo, rondas do dia, ocorrências abertas, cadastro de clientes e postos de ronda via GPS.</p>
+      <div class="mod-tags">
+        <span class="mod-tag">Live Dashboard</span>
+        <span class="mod-tag">Cadastro de Postos</span>
+      </div>
+    </div>
+
+    <div class="mod-card reveal" style="transition-delay:.2s">
+      <span class="mod-num">04 — MONITORAMENTO</span>
+      <div class="mod-icon">📊</div>
+      <div class="mod-title">Dashboard Operacional</div>
+      <p class="mod-desc">Visão macro para operadores: mapa de agentes, alertas críticos, cobertura de turnos, indicadores em tempo real e histórico de ocorrências por empresa.</p>
+      <div class="mod-tags">
+        <span class="mod-tag">Multi-empresa</span>
+        <span class="mod-tag">Alertas</span>
+      </div>
+    </div>
+
+    <div class="mod-card reveal" style="transition-delay:.25s">
+      <span class="mod-num">05 — CLIENTE</span>
+      <div class="mod-icon">🏛️</div>
+      <div class="mod-title">Portal de Transparência</div>
+      <p class="mod-desc">Síndicos, gerentes e responsáveis pelo patrimônio acessam relatórios de rondas, ocorrências e manutenção. Transparência total sem expor dados operacionais sensíveis. LGPD compliant.</p>
+      <div class="mod-tags">
+        <span class="mod-tag">Portal Web</span>
+        <span class="mod-tag">LGPD</span>
+      </div>
+    </div>
+
+    <div class="mod-card reveal" style="transition-delay:.3s">
+      <span class="mod-num">06 — INTEGRAÇÃO</span>
+      <div class="mod-icon">⚡</div>
+      <div class="mod-title">API & Integrações</div>
+      <p class="mod-desc">API REST com autenticação por chave, webhooks em tempo real e documentação Swagger. Conecte com sistemas de controle de acesso, seguradoras, ERP e plataformas de gestão condominial.</p>
+      <div class="mod-tags">
+        <span class="mod-tag">REST API</span>
+        <span class="mod-tag">Webhooks</span>
+        <span class="mod-tag">Swagger</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SEGURANÇA / TERMINAL ═══ -->
+<section class="seguranca">
+  <div class="seguranca-inner">
+    <div class="reveal">
+      <div class="section-label">Tecnologia de campo</div>
+      <h2 class="section-title">Construído para operar onde outros falham.</h2>
+      <div class="seg-feats">
+        <div class="seg-feat">
+          <div class="seg-feat-icon">→</div>
+          <div>
+            <div class="seg-feat-title">GPS sem rede</div>
+            <div class="seg-feat-desc">Rondas e autenticações funcionam offline usando GPS nativo do dispositivo. Sincroniza quando reconectar.</div>
+          </div>
+        </div>
+        <div class="seg-feat">
+          <div class="seg-feat-icon">→</div>
+          <div>
+            <div class="seg-feat-title">Isolamento total por empresa</div>
+            <div class="seg-feat-desc">Impossibilidade técnica de dados de uma empresa acessarem outra. Cada cliente é um ambiente completamente separado.</div>
+          </div>
+        </div>
+        <div class="seg-feat">
+          <div class="seg-feat-icon">→</div>
+          <div>
+            <div class="seg-feat-title">Evidência em cada etapa</div>
+            <div class="seg-feat-desc">Foto, GPS, timestamp e assinatura digital em cada ronda, ocorrência e ordem de serviço. Prova que o trabalho foi feito.</div>
+          </div>
+        </div>
+        <div class="seg-feat">
+          <div class="seg-feat-icon">→</div>
+          <div>
+            <div class="seg-feat-title">Escalação automática</div>
+            <div class="seg-feat-desc">Pânico acionado notifica todos os supervisores da empresa via SocketIO em tempo real. Resposta em segundos.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="terminal reveal" style="transition-delay:.2s">
+      <div class="term-bar">
+        <div class="term-dots">
+          <div class="term-dot" style="background:#ff5f56"></div>
+          <div class="term-dot" style="background:#ffbd2e"></div>
+          <div class="term-dot" style="background:#27c93f"></div>
+        </div>
+        <div class="term-title">R72 LEGION · OPERATIONAL LOG</div>
+      </div>
+      <div class="term-body">
+        <div class="t-row"><span class="t-ts">[23:48:12]</span><span class="t-ok">✓ RONDA</span><span class="t-inf">Portaria Principal · João S. · 8m</span></div>
+        <div class="t-row"><span class="t-ts">[23:30:05]</span><span class="t-ok">✓ RONDA</span><span class="t-inf">Estacionamento Fundos · João S. · 12m</span></div>
+        <div class="t-sep"></div>
+        <div class="t-row"><span class="t-ts">[22:14:33]</span><span class="t-warn">⚠ OCORR</span><span class="t-inf">Cerca elétrica setor B · Sup: Marcos R.</span></div>
+        <div class="t-row"><span class="t-ts">[22:18:07]</span><span class="t-ok">✓ RESOLV</span><span class="t-inf">Ocorrência atendida · Foto anexada</span></div>
+        <div class="t-sep"></div>
+        <div class="t-row"><span class="t-ts">[18:52:41]</span><span class="t-err">! PÂNICO</span><span class="t-inf">Portaria Norte · Carlos B.</span></div>
+        <div class="t-row"><span class="t-ts">[18:56:14]</span><span class="t-ok">✓ ENCERR</span><span class="t-inf">Atendido em 3m42s · Sem alteração</span></div>
+        <div class="t-sep"></div>
+        <div class="t-row"><span class="t-ts">[18:00:00]</span><span class="t-inf">▶ TURNO NOTURNO · 3 agentes confirmados</span></div>
+        <div class="t-row"><span class="t-ts">[23:59:00]</span><span class="t-inf">_ <span class="cursor"></span></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"><div class="divider-diamond"></div></div>
+
+<!-- ═══ PARA QUEM ═══ -->
+<section class="para-quem" id="para-quem">
+  <div class="pq-inner">
+    <div class="pq-header reveal">
+      <div class="section-label">Soluções por perfil</div>
+      <h2 class="section-title">Para quem o R72 Legion foi construído.</h2>
+    </div>
+    <div class="pq-grid">
+      <div class="pq-card reveal">
+        <div class="pq-icon">🏢</div>
+        <div class="pq-title">Empresas de Segurança</div>
+        <p class="pq-desc">Gestão completa de agentes, escalas e ocorrências. Multi-cliente em uma plataforma com isolamento total.</p>
+        <div class="pq-tags"><span class="pq-tag">Multi-tenant</span><span class="pq-tag">Turnos</span><span class="pq-tag">Relatórios</span></div>
+      </div>
+      <div class="pq-card reveal" style="transition-delay:.1s">
+        <div class="pq-icon">👮</div>
+        <div class="pq-title">Supervisores</div>
+        <p class="pq-desc">Visibilidade total da equipe em campo. Atendimento de pânicos, vistorias e cadastro de postos de ronda.</p>
+        <div class="pq-tags"><span class="pq-tag">Tempo Real</span><span class="pq-tag">Pânico</span><span class="pq-tag">Rondas</span></div>
+      </div>
+      <div class="pq-card reveal" style="transition-delay:.2s">
+        <div class="pq-icon">🔑</div>
+        <div class="pq-title">Síndicos & Clientes</div>
+        <p class="pq-desc">Portal exclusivo com transparência. Rondas realizadas, ocorrências tratadas e equipamentos — tudo visível.</p>
+        <div class="pq-tags"><span class="pq-tag">Portal Web</span><span class="pq-tag">Relatórios PDF</span></div>
+      </div>
+      <div class="pq-card reveal" style="transition-delay:.3s">
+        <div class="pq-icon">🔗</div>
+        <div class="pq-title">Parceiros Tecnológicos</div>
+        <p class="pq-desc">API com licença territorial. Integre com controle de acesso, seguradoras, ERP e sistemas de gestão condominial.</p>
+        <div class="pq-tags"><span class="pq-tag">API</span><span class="pq-tag">Licença</span><span class="pq-tag">Webhooks</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ COMO FUNCIONA ═══ -->
+<section class="como">
+  <div class="como-head reveal">
+    <div class="section-label">Processo</div>
+    <h2 class="section-title">Como funciona</h2>
+    <p class="section-desc" style="margin:0 auto">Da contratação à operação completa em poucos dias.</p>
+  </div>
+
+  <div class="como-steps">
+    <div class="step reveal">
+      <div class="step-circle"><span>01</span></div>
+      <div class="step-title">Cadastro da Empresa</div>
+      <p class="step-desc">Sua empresa é configurada com isolamento total. Clientes, postos e agentes cadastrados com segurança.</p>
+    </div>
+    <div class="step reveal" style="transition-delay:.1s">
+      <div class="step-circle"><span>02</span></div>
+      <div class="step-title">Configuração de Campo</div>
+      <p class="step-desc">Supervisor cadastra clientes e postos de ronda via GPS. Agentes são alocados automaticamente.</p>
+    </div>
+    <div class="step reveal" style="transition-delay:.2s">
+      <div class="step-circle"><span>03</span></div>
+      <div class="step-title">Operação em Tempo Real</div>
+      <p class="step-desc">Agentes autenticam rondas via GPS. Supervisores monitoram tudo. Pânicos escalados em segundos.</p>
+    </div>
+    <div class="step reveal" style="transition-delay:.3s">
+      <div class="step-circle"><span>04</span></div>
+      <div class="step-title">Relatório & Transparência</div>
+      <p class="step-desc">Cliente acessa o portal e vê tudo que foi feito. Relatórios automáticos por turno, dia e mês.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ API ═══ -->
+<section class="api-section" id="api">
+  <div class="api-inner">
+    <div class="reveal">
+      <div class="section-label">API & Integrações</div>
+      <h2 class="section-title">O hub do ecossistema de segurança.</h2>
+      <p class="section-desc">O R72 Legion foi construído para ser o ponto central entre segurança privada, controle de acesso, seguradoras e gestão condominial.</p>
+      <ul class="api-list">
+        <li>Autenticação por API key com permissões granulares</li>
+        <li>Webhooks em tempo real para pânico, ronda e turno</li>
+        <li>Licença territorial exclusiva por cidade ou região</li>
+        <li>Documentação Swagger com sandbox de testes</li>
+        <li>Conformidade LGPD com DPA para cada parceiro</li>
+      </ul>
+      <a href="#contato" class="btn btn-gold">Falar sobre Integração</a>
+    </div>
+
+    <div class="code-block reveal" style="transition-delay:.2s">
+      <div class="cb-bar">
+        <div class="cb-dot" style="background:#ff5f56"></div>
+        <div class="cb-dot" style="background:#ffbd2e"></div>
+        <div class="cb-dot" style="background:#27c93f"></div>
+        <div class="cb-title">api.r72.tec.br / v1</div>
+      </div>
+      <div class="cb-code">
+<span class="cc">// Consultar rondas do dia — R72 Legion API</span>
+<span class="ck">const</span> response = <span class="cm">await</span> fetch(
+  <span class="cs">"https://api.r72.tec.br/v1/rounds"</span>,
+  {
+    <span class="ck">headers</span>: {
+      <span class="cs">"X-API-Key"</span>: <span class="cs">"r72_live_a8f3..."</span>
+    },
+    <span class="ck">params</span>: {
+      <span class="cs">condo_id</span>: <span class="cs">"condo_001"</span>,
+      <span class="cs">date</span>:     <span class="cs">"2026-05-25"</span>
+    }
+  }
+);
+
+<span class="cc">// Resposta →</span>
+{
+  <span class="ck">"status"</span>:         <span class="cs">"ok"</span>,
+  <span class="ck">"rounds_done"</span>:    <span class="cn">18</span>,
+  <span class="ck">"coverage_pct"</span>:   <span class="cn">90</span>,
+  <span class="ck">"last_auth_at"</span>:   <span class="cs">"23:48:12"</span>,
+  <span class="ck">"all_posts_ok"</span>:   <span class="cm">true</span>
+}
+      </div>
+
+      <!-- NOTA API EM DESENVOLVIMENTO -->
+      <div class="api-dev-note">
+        <div class="adn-left">
+          <span class="adn-badge">EM DESENVOLVIMENTO</span>
+          <span class="adn-text">API pública prevista para lançamento em breve. Acesso antecipado disponível para parceiros.</span>
+        </div>
+        <a href="#contato" class="adn-cta">Garantir Acesso Antecipado →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+.api-dev-note {
+  border-top: 1px solid rgba(201,168,76,.12);
+  background: rgba(201,168,76,.04);
+  padding: .9rem 1.4rem;
+  display: flex; align-items: center; gap: 1rem;
+  flex-wrap: wrap;
+}
+.adn-left {
+  display: flex; align-items: center; gap: .75rem; flex: 1; flex-wrap: wrap;
+}
+.adn-badge {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .58rem; letter-spacing: .18em; text-transform: uppercase;
+  padding: .25rem .7rem;
+  background: rgba(201,168,76,.12);
+  border: 1px solid rgba(201,168,76,.25);
+  color: var(--gold);
+  white-space: nowrap; flex-shrink: 0;
+}
+.adn-text {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .82rem; font-weight: 300; letter-spacing: .03em;
+  color: var(--dim); line-height: 1.4;
+}
+.adn-cta {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; font-size: .78rem; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--gold-light); text-decoration: none; white-space: nowrap;
+  transition: color .2s; flex-shrink: 0;
+}
+.adn-cta:hover { color: var(--gold-light); text-shadow: 0 0 12px rgba(201,168,76,.4); }
+</style>
+
+<div class="divider"><div class="divider-diamond"></div></div>
+
+<!-- ═══ PLANOS ═══ -->
+<section class="planos" id="planos">
+  <div class="planos-head reveal">
+    <div class="section-label">Planos & Licenciamento</div>
+    <h2 class="section-title">Escala com o tamanho<br>da sua operação.</h2>
+    <p class="section-desc">Três planos para empresas de segurança privada. Licença territorial disponível para parceiros tecnológicos.</p>
+  </div>
+
+  <div class="planos-grid">
+    <!-- Plano Básico -->
+    <div class="plano reveal">
+      <div class="plano-tier">// Starter</div>
+      <div class="plano-price">Sob consulta</div>
+      <div class="plano-price-sub">Até 1 empresa · até 50 agentes<br>Ideal para começar</div>
+      <ul class="plano-items">
+        <li>Módulo de agentes de campo</li>
+        <li>Sistema de rondas GPS</li>
+        <li>Pânico e ocorrências</li>
+        <li>Dashboard operacional</li>
+        <li class="off">Portal do cliente</li>
+        <li class="off">API & integrações</li>
+      </ul>
+      <a href="#contato" class="btn-plano">Solicitar Proposta</a>
+    </div>
+
+    <!-- Plano Pro (destaque) -->
+    <div class="plano plano--star reveal" style="transition-delay:.1s">
+      <div class="plano-badge">RECOMENDADO</div>
+      <div class="plano-tier">// Profissional</div>
+      <div class="plano-price">Sob consulta</div>
+      <div class="plano-price-sub">Multi-empresa · agentes ilimitados<br>Para operações em crescimento</div>
+      <ul class="plano-items">
+        <li>Todos os módulos incluídos</li>
+        <li>Portal do cliente (síndico)</li>
+        <li>Multi-empresa na mesma instância</li>
+        <li>Relatórios automáticos em PDF</li>
+        <li>Chat operacional por empresa</li>
+        <li class="off">API pública & webhooks</li>
+      </ul>
+      <a href="#contato" class="btn-plano">Solicitar Proposta</a>
+    </div>
+
+    <!-- Plano Enterprise -->
+    <div class="plano reveal" style="transition-delay:.2s">
+      <div class="plano-tier">// Enterprise</div>
+      <div class="plano-price">Licença Territorial</div>
+      <div class="plano-price-sub">Exclusividade por cidade/região<br>Para parceiros tecnológicos</div>
+      <ul class="plano-items">
+        <li>Tudo do plano Profissional</li>
+        <li>API pública & webhooks</li>
+        <li>Documentação Swagger</li>
+        <li>White label (marca própria)</li>
+        <li>Exclusividade territorial</li>
+        <li>Suporte prioritário dedicado</li>
+      </ul>
+      <a href="#contato" class="btn-plano">Solicitar Proposta</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CTA FINAL ═══ -->
+<section class="cta-final" id="contato">
+  <div class="cta-glow"></div>
+
+  <div class="section-label" style="justify-content:center">
+    Contato
+  </div>
+
+  <h2 class="section-title">
+    Pronto para transformar<br>a operação da sua empresa?
+  </h2>
+
+  <p class="section-desc">
+    Agende uma demonstração e veja o R72 Legion em operação real. Nenhuma empresa de segurança privada deveria operar sem visibilidade total do campo.
+  </p>
+
+  <div class="contato-cards">
+    <div class="contato-card">
+      <span class="cc-icon">📱</span>
+      <div class="cc-title">WhatsApp</div>
+      <div class="cc-info">Resposta rápida</div>
+      <p class="cc-desc">Fale diretamente com a equipe R72 Legion para agendar uma demonstração ou tirar dúvidas.</p>
+      <a href="https://wa.me/5543999999999" target="_blank" class="btn-wpp">Chamar no WhatsApp</a>
+    </div>
+    <div class="contato-card">
+      <span class="cc-icon">✉️</span>
+      <div class="cc-title">E-mail</div>
+      <div class="cc-info">contato@r72.tec.br</div>
+      <p class="cc-desc">Para propostas comerciais, parcerias e integrações via API com licença territorial.</p>
+      <a href="mailto:contato@r72.tec.br" class="btn-email">Enviar E-mail</a>
+    </div>
+  </div>
+
+  <div class="cta-row">
+    <a href="https://login.r72.tec.br/" target="_blank" class="btn btn-gold">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+        <polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/>
+      </svg>
+      Acessar o Sistema
+    </a>
+  </div>
+
+  <p class="cta-note">Demonstração sem compromisso · Dados isolados por empresa · LGPD compliant</p>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <span class="footer-brand-name">R72 LEGION</span>
+        <p class="footer-desc">Plataforma de gestão operacional para empresas de segurança privada. Construída com precisão para o campo.</p>
+      </div>
+      <div>
+        <div class="footer-col-title">Plataforma</div>
+        <ul class="footer-links">
+          <li><a href="#">Módulos</a></li>
+          <li><a href="#">API & Integrações</a></li>
+          <li><a href="#">Portal do Cliente</a></li>
+          <li><a href="#">R72 Condo</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">Legal</div>
+        <ul class="footer-links">
+          <li><a href="#">Termo de Uso</a></li>
+          <li><a href="#">Privacidade & LGPD</a></li>
+          <li><a href="#">Licença Territorial</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">Acesso</div>
+        <ul class="footer-links">
+          <li><a href="https://login.r72.tec.br/" target="_blank">Acessar Sistema →</a></li>
+          <li><a href="#">Agendar Demo</a></li>
+          <li><a href="#">Suporte</a></li>
+          <li><a href="#">Londrina — PR</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2026 R72 LEGION · TODOS OS DIREITOS RESERVADOS · LONDRINA — PR</div>
+      <div class="footer-tag">LGPD COMPLIANT</div>
+      <div class="footer-tag">API v1.0</div>
+      <div class="footer-tag">r72.tec.br</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Scroll reveal
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const t = document.querySelector(a.getAttribute('href'));
+    if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth' }); }
+  });
+});
+</script>
+</body>
+</html>
