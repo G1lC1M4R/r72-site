@@ -1001,8 +1001,9 @@ footer {
     <li><a href="#sobre">Plataforma</a></li>
     <li><a href="#modulos">Módulos</a></li>
     <li><a href="#para-quem">Soluções</a></li>
-    <li><a href="#api">API</a></li>
     <li><a href="#planos">Planos</a></li>
+    <li><a href="#vagas">Vagas</a></li>
+    <li><a href="#visita">Visitar</a></li>
   </ul>
 
   <a href="https://wa.me/5543991995496" target="_blank" style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.85rem;letter-spacing:.08em;color:#25D366;text-decoration:none;display:flex;align-items:center;gap:.35rem">📱 (43) 99199-5496</a>
@@ -1779,9 +1780,9 @@ footer {
   <div class="planos-grid">
     <!-- Plano Básico -->
     <div class="plano reveal">
-      <div class="plano-tier">// Starter</div>
-      <div class="plano-price"><span style="font-size:.75rem;font-weight:300">a partir de</span><br>R$ 197<span style="font-size:.8rem;color:var(--dim)">/mês</span></div>
-      <div class="plano-price-sub">Até 1 empresa · até 50 agentes<br>Sem fidelidade · cancele quando quiser</div>
+      <div class="plano-tier">// Para começar</div>
+      <div class="plano-question">Você precisa<span class="plano-q-acc">?</span></div>
+      <div class="plano-question-sub">Controle total da equipe em campo — ponto GPS, rondas e pânico em um só lugar.</div>
       <ul class="plano-items">
         <li>Módulo de agentes de campo</li>
         <li>Sistema de rondas GPS</li>
@@ -1790,15 +1791,15 @@ footer {
         <li class="off">Portal do cliente</li>
         <li class="off">API & integrações</li>
       </ul>
-      <a href="https://wa.me/5543991995496?text=Quero+o+plano+Starter+do+R72+Legion" target="_blank" class="btn-plano">Falar no WhatsApp →</a>
+      <a href="https://wa.me/5543991995496?text=Ol%C3%A1%2C+quero+conhecer+o+R72+Legion" target="_blank" class="btn-plano">Quero Conhecer →</a>
     </div>
 
     <!-- Plano Pro (destaque) -->
     <div class="plano plano--star reveal" style="transition-delay:.1s">
-      <div class="plano-badge">RECOMENDADO</div>
-      <div class="plano-tier">// Profissional</div>
-      <div class="plano-price"><span style="font-size:.75rem;font-weight:300">a partir de</span><br>R$ 497<span style="font-size:.8rem;color:var(--dim)">/mês</span></div>
-      <div class="plano-price-sub">Multi-empresa · agentes ilimitados<br>Cancelamento livre · sem fidelidade</div>
+      <div class="plano-badge">MAIS ESCOLHIDO</div>
+      <div class="plano-tier">// Visibilidade total</div>
+      <div class="plano-question">Você tem<span class="plano-q-acc">?</span></div>
+      <div class="plano-question-sub">Comprovação real de cada ronda, relatório automático para o síndico e GPS anti-fraude.</div>
       <ul class="plano-items">
         <li>Todos os módulos incluídos</li>
         <li>Portal do cliente (síndico)</li>
@@ -1807,14 +1808,14 @@ footer {
         <li>Chat operacional por empresa</li>
         <li class="off">API pública & webhooks</li>
       </ul>
-      <a href="https://wa.me/5543991995496?text=Quero+o+plano+Profissional+do+R72+Legion" target="_blank" class="btn-plano">Falar no WhatsApp →</a>
+      <a href="https://wa.me/5543991995496?text=Ol%C3%A1%2C+quero+ver+o+R72+em+opera%C3%A7%C3%A3o" target="_blank" class="btn-plano">Ver em Operação →</a>
     </div>
 
     <!-- Plano Enterprise -->
     <div class="plano reveal" style="transition-delay:.2s">
-      <div class="plano-tier">// Enterprise</div>
-      <div class="plano-price">Licença Territorial</div>
-      <div class="plano-price-sub">Exclusividade por cidade/região<br>Para parceiros tecnológicos</div>
+      <div class="plano-tier">// Exclusividade</div>
+      <div class="plano-question">Já conhece o R72<span class="plano-q-acc">?</span></div>
+      <div class="plano-question-sub">Seja o único na sua cidade com essa tecnologia — licença territorial exclusiva.</div>
       <ul class="plano-items">
         <li>Tudo do plano Profissional</li>
         <li>API pública & webhooks</li>
@@ -1823,7 +1824,7 @@ footer {
         <li>Exclusividade territorial</li>
         <li>Suporte prioritário dedicado</li>
       </ul>
-      <a href="https://wa.me/5543991995496?text=Quero+Licen%C3%A7a+Territorial+R72" target="_blank" class="btn-plano">Falar no WhatsApp →</a>
+      <a href="https://wa.me/5543991995496?text=Quero+saber+sobre+a+Licen%C3%A7a+Territorial+R72" target="_blank" class="btn-plano">Falar com a Equipe →</a>
     </div>
   </div>
 </section>
@@ -1903,6 +1904,180 @@ footer {
   </div>
 </section>
 
+<style>
+/* ═══ PLANOS — PERGUNTAS (sem preço) ═══ */
+.plano-question {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.55rem; font-weight: 900;
+  color: var(--white); line-height: 1.1;
+  margin-bottom: .55rem;
+}
+.plano-q-acc {
+  background: linear-gradient(135deg, var(--gold-light), var(--gold));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  font-size: 2rem;
+}
+.plano-question-sub {
+  font-size: .88rem; font-weight: 300; color: var(--dim);
+  line-height: 1.6; margin-bottom: 2.2rem;
+}
+
+/* ═══ FORMS R72 ═══ */
+.form-r72 { display:flex; flex-direction:column; gap:1rem; margin-top:2rem; }
+.form-r72 input, .form-r72 select, .form-r72 textarea {
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(201,168,76,.18);
+  color: var(--text); padding: .85rem 1.1rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1rem; letter-spacing: .04em;
+  width: 100%; outline: none; transition: border-color .2s;
+  -webkit-appearance: none; -moz-appearance: none; appearance: none;
+}
+.form-r72 input:focus, .form-r72 select:focus, .form-r72 textarea:focus {
+  border-color: rgba(201,168,76,.55);
+  background: rgba(201,168,76,.02);
+}
+.form-r72 input::placeholder, .form-r72 textarea::placeholder { color: var(--mid); }
+.form-r72 select { color: var(--dim); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23C9A84C' stroke-width='1.5' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1rem center; padding-right: 2.5rem; }
+.form-r72 textarea { resize: vertical; min-height: 120px; }
+.form-r72-label { font-family:'Share Tech Mono',monospace; font-size:.62rem; letter-spacing:.18em; color:var(--gold-dark); text-transform:uppercase; margin-bottom:.3rem; display:block; }
+.form-row-2 { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+.btn-form-r72 {
+  background: linear-gradient(135deg, var(--gold-light), var(--gold));
+  color: var(--void); font-family:'Barlow Condensed',sans-serif; font-weight:700;
+  font-size:.88rem; letter-spacing:.18em; text-transform:uppercase;
+  padding:.9rem 2.2rem; border:none; cursor:pointer; transition:all .25s;
+  align-self: flex-start; display:inline-flex; align-items:center; gap:.5rem;
+}
+.btn-form-r72:hover { box-shadow:0 0 30px rgba(201,168,76,.45); filter:brightness(1.08); }
+.btn-form-r72:disabled { opacity:.5; cursor:not-allowed; filter:none; box-shadow:none; }
+.form-success-r72 {
+  display:none; background:rgba(201,168,76,.05);
+  border:1px solid rgba(201,168,76,.28); padding:2.5rem; text-align:center;
+  margin-top:1.5rem;
+}
+.form-success-r72.show { display:block; }
+.fsr-check { font-size:2.5rem; margin-bottom:1rem; display:block; }
+.fsr-title { font-family:'Orbitron',monospace; font-size:1rem; font-weight:800; color:var(--gold); letter-spacing:.08em; margin-bottom:.9rem; }
+.fsr-text { font-size:.95rem; color:var(--dim); line-height:1.85; }
+.fsr-text strong { color:var(--gold-light); }
+@media(max-width:640px) { .form-row-2 { grid-template-columns:1fr; } }
+</style>
+
+<!-- ═══ TRABALHE CONOSCO ═══ -->
+<section id="vagas" style="padding:6rem 5%;background:var(--deep);border-top:1px solid rgba(201,168,76,.07)">
+  <div style="max-width:780px;margin:0 auto">
+    <div class="reveal">
+      <div class="section-label">Oportunidades</div>
+      <h2 class="section-title">Trabalhe Conosco</h2>
+      <p class="section-desc">Faça parte da equipe R72 Legion. Se você tem experiência em segurança privada, tecnologia ou quer crescer nesse setor — queremos conhecer você.</p>
+    </div>
+    <form class="form-r72 reveal" id="form-vagas" style="transition-delay:.1s" novalidate>
+      <div class="form-row-2">
+        <div>
+          <label class="form-r72-label">Nome Completo *</label>
+          <input type="text" name="nome" placeholder="Seu nome completo" required>
+        </div>
+        <div>
+          <label class="form-r72-label">Telefone / WhatsApp *</label>
+          <input type="tel" name="telefone" placeholder="(43) 99999-9999" required>
+        </div>
+      </div>
+      <div class="form-row-2">
+        <div>
+          <label class="form-r72-label">Cargo de Interesse *</label>
+          <select name="cargo" required>
+            <option value="" disabled selected>Selecione...</option>
+            <option>Vigilante Patrimonial</option>
+            <option>Supervisor de Campo</option>
+            <option>Operador de Monitoramento</option>
+            <option>Técnico de TI / Suporte</option>
+            <option>Comercial / Vendas</option>
+            <option>Outro</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-r72-label">Cidade / Estado</label>
+          <input type="text" name="cidade" placeholder="Londrina — PR">
+        </div>
+      </div>
+      <div>
+        <label class="form-r72-label">Apresentação</label>
+        <textarea name="apresentacao" placeholder="Fale sobre sua experiência e por que quer trabalhar com a R72 Legion..."></textarea>
+      </div>
+      <button type="submit" class="btn-form-r72" id="btn-vagas">Enviar Currículo →</button>
+    </form>
+    <div class="form-success-r72" id="success-vagas">
+      <span class="fsr-check">✅</span>
+      <div class="fsr-title">Currículo Recebido com Sucesso</div>
+      <p class="fsr-text">
+        Recebemos seu currículo e registramos seu interesse.<br>
+        Nossa equipe analisará seu perfil e entrará em contato via <strong>WhatsApp em até 48 horas úteis</strong>.<br><br>
+        <em style="font-size:.82rem;color:var(--mid)">Obrigado pelo interesse em fazer parte da R72 Legion. Boa sorte!</em>
+      </p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"><div class="divider-diamond"></div></div>
+
+<!-- ═══ SOLICITAR VISITA ═══ -->
+<section id="visita" style="padding:6rem 5%;background:var(--abyss)">
+  <div style="max-width:780px;margin:0 auto">
+    <div class="reveal">
+      <div class="section-label">Visita Técnica Gratuita</div>
+      <h2 class="section-title">Solicite uma Visita<br>ao seu Estabelecimento</h2>
+      <p class="section-desc">Um especialista R72 vai até o seu condomínio, empresa ou estabelecimento — apresenta a solução, faz o diagnóstico da sua operação de segurança e responde todas as dúvidas. Sem compromisso.</p>
+    </div>
+    <form class="form-r72 reveal" id="form-visita" style="transition-delay:.1s" novalidate>
+      <div class="form-row-2">
+        <div>
+          <label class="form-r72-label">Nome Responsável *</label>
+          <input type="text" name="nome" placeholder="Seu nome" required>
+        </div>
+        <div>
+          <label class="form-r72-label">Empresa / Condomínio *</label>
+          <input type="text" name="empresa" placeholder="Nome da empresa ou condomínio" required>
+        </div>
+      </div>
+      <div class="form-row-2">
+        <div>
+          <label class="form-r72-label">Telefone / WhatsApp *</label>
+          <input type="tel" name="telefone" placeholder="(43) 99999-9999" required>
+        </div>
+        <div>
+          <label class="form-r72-label">E-mail</label>
+          <input type="email" name="email" placeholder="contato@empresa.com.br">
+        </div>
+      </div>
+      <div class="form-row-2">
+        <div>
+          <label class="form-r72-label">Cidade / Estado *</label>
+          <input type="text" name="cidade" placeholder="Londrina — PR" required>
+        </div>
+        <div>
+          <label class="form-r72-label">Melhor Horário</label>
+          <input type="text" name="horario" placeholder="Ex: Seg a Sex, manhã">
+        </div>
+      </div>
+      <div>
+        <label class="form-r72-label">Mensagem (opcional)</label>
+        <textarea name="mensagem" placeholder="Descreva sua operação atual e o que deseja melhorar..."></textarea>
+      </div>
+      <button type="submit" class="btn-form-r72" id="btn-visita">Solicitar Visita Gratuita →</button>
+    </form>
+    <div class="form-success-r72" id="success-visita">
+      <span class="fsr-check">🛡️</span>
+      <div class="fsr-title">Visita Confirmada</div>
+      <p class="fsr-text">
+        Solicitação recebida com sucesso.<br>
+        Nossa equipe entrará em contato via <strong>WhatsApp em até 2 horas úteis</strong> para confirmar data e horário da visita ao seu estabelecimento.<br><br>
+        <em style="font-size:.82rem;color:var(--mid)">Seus dados estão protegidos pela LGPD e serão usados apenas para agendamento.</em>
+      </p>
+    </div>
+  </div>
+</section>
+
 <!-- ═══ CTA FINAL ═══ -->
 <section class="cta-final" id="contato">
   <div class="cta-glow"></div>
@@ -1978,9 +2153,9 @@ footer {
         <div class="footer-col-title">Acesso</div>
         <ul class="footer-links">
           <li><a href="https://login.r72.tec.br/" target="_blank">Acessar Sistema →</a></li>
-          <li><a href="#">Agendar Demo</a></li>
-          <li><a href="#">Suporte</a></li>
-          <li><a href="#">Londrina — PR</a></li>
+          <li><a href="#visita">Solicitar Visita</a></li>
+          <li><a href="#vagas">Trabalhe Conosco</a></li>
+          <li><a href="https://wa.me/5543991995496" target="_blank">Suporte WhatsApp</a></li>
         </ul>
       </div>
     </div>
@@ -2009,6 +2184,77 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
     if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth' }); }
   });
 });
+
+// ── Formulários R72 ──────────────────────────────────────────────────────────
+// Endpoint: Formsubmit AJAX (sem redirect, sem captcha)
+// Primeira submissão dispara e-mail de ativação para suporte@r72legion.com.br
+const R72_EMAIL = 'suporte@r72legion.com.br';
+
+function setupForm(formId, btnId, successId, subject) {
+  const form = document.getElementById(formId);
+  const btn  = document.getElementById(btnId);
+  const box  = document.getElementById(successId);
+  if (!form) return;
+
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    // Validação básica
+    const required = form.querySelectorAll('[required]');
+    let ok = true;
+    required.forEach(f => {
+      f.style.borderColor = '';
+      if (!f.value.trim()) { f.style.borderColor = 'rgba(255,80,80,.6)'; ok = false; }
+    });
+    if (!ok) return;
+
+    const origText = btn.textContent;
+    btn.textContent = 'Enviando...';
+    btn.disabled = true;
+
+    const data = new FormData(form);
+    data.append('_subject', subject);
+    data.append('_template', 'table');
+    data.append('_captcha', 'false');
+
+    try {
+      const res = await fetch('https://formsubmit.co/ajax/' + R72_EMAIL, {
+        method: 'POST',
+        headers: { 'Accept': 'application/json' },
+        body: data
+      });
+      const json = await res.json();
+
+      if (json.success === 'true' || json.success === true) {
+        form.style.display = 'none';
+        box.classList.add('show');
+        box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else {
+        throw new Error('rejected');
+      }
+    } catch (err) {
+      btn.textContent = 'Erro ao enviar — tente novamente';
+      btn.disabled = false;
+      btn.style.background = 'rgba(255,80,80,.18)';
+      btn.style.color = '#f87171';
+      setTimeout(() => {
+        btn.textContent = origText;
+        btn.disabled = false;
+        btn.style.background = '';
+        btn.style.color = '';
+      }, 3500);
+    }
+  });
+}
+
+setupForm(
+  'form-vagas', 'btn-vagas', 'success-vagas',
+  '[R72 Vagas] Novo curriculo recebido'
+);
+setupForm(
+  'form-visita', 'btn-visita', 'success-visita',
+  '[R72 Visita] Nova solicitacao de visita'
+);
 </script>
 </body>
 </html>
